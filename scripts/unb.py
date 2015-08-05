@@ -38,10 +38,6 @@ The unb utility's documentation is available through the ``--help`` option.
 
 """
 
-# from django.core.management import execute_from_command_line
-def execute_from_command_line(*args, **kwargs):
-  print 'Not Implemented'
-
 import os
 import shutil
 import subprocess
@@ -55,9 +51,37 @@ import utils
 import project
 from config import config
 
+try:
+  from django.core.management import execute_from_command_line
+except ImportError:
+  def execute_from_command_line(args):
+    cmd = ''
+    if args:
+      cmd = ' '.join([str(arg) for arg in args])
+    print 'Not in a Django project.  Did not run command: %s' % cmd
+
 
 # Utilities
 # ---------
+
+def _execute_django_command(name=None, args=None):
+  name = name or 'help'
+  args = args or []
+  argv = ['manage.py', name] + args
+  return execute_from_command_line(argv)
+
+
+def _in_project():
+  return config.PROJECT_PATH != config.HOME_PATH
+
+
+def _is_django_project():
+  """A, not totally reliable, test if we're in a Django project."""
+  managepy_path = os.path.join(config.PROJECT_PATH, 'manage.py')
+  if os.path.exists(managepy_path):
+    return True
+  return False
+
 
 # TODO(nick): Currently this is unused.  We assume that the user has already
 #   sourced the virtual environment.
@@ -111,12 +135,18 @@ def _build_docs():
 
 def cli_init():
   """Project management utilities."""
-  # Add the project path to sys.path for all utilities.
-  sys.path.append(config.PROJECT_PATH)
+  project_path = config.get('PROJECT_PATH', config.HOME_PATH)
 
-  # Set the default environment settings to dev.
-  os.environ.setdefault('DJANGO_SETTINGS_MODULE',
-                        config.DEFAULT_DJANGO_SETTINGS_MODULE)
+  if project_path != config.HOME_PATH:
+    # Add the project path to sys.path for all utilities.
+    sys.path.append(config.PROJECT_PATH)
+
+  if _is_django_project():
+    # Set the default settings module.
+    os.environ.setdefault(
+      'DJANGO_SETTINGS_MODULE',
+      config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
+
 
 cli = Group(cli_init)
 
@@ -167,11 +197,13 @@ def deploy():
 cli.command(deploy)
 
 
-@arg('name', nargs='?')
-@arg('args', nargs=argparse.REMAINDER)
+@arg('name', nargs='?',
+     help="The name of the manage.py command you want to run.")
+@arg('args', nargs=argparse.REMAINDER,
+     help="Arguments to pass to the manage.py command.")
 def m(name, args):
   """Run manage.py commands (using the dev environment settings)."""
-  execute_from_command_line(sys.argv[1:], *args)
+  _execute_django_command(name, args)
 cli.command(m)
 
 
@@ -192,21 +224,37 @@ cli.command(runserver)
 
 
 def lint():
-  """Run linters."""
-  subprocess.call('flake8')
+  """Run linters.
+
+  Note:
+
+  If you want a catch-all configuration, add a ``~/.config/flake8`` file.
+  Here's an example.  This ignores some specific errors (E111: 4 space indent
+  for example), and also excludes any directory in the project named ``venv``
+  or ``migrations``.
+
+      [flake8]
+      ignore=E111,E121,F403
+      exclude=migrations,venv
+      max-line-length = 79
+
+  For more info: https://flake8.readthedocs.org/en/2.0/config.html
+  """
+  if _in_project():
+    subprocess.call(['flake8', config.PROJECT_PATH])
 cli.command(lint)
 
 
 def test():
   """Run tests and linters."""
-  subprocess.call('flake8')
-  execute_from_command_line(['manage.py', 'test'])
+  lint()
+  _execute_django_command('test')
 cli.command(test)
 
 
 def shell():
   """Run shell."""
-  execute_from_command_line(['manage.py', 'shell_plus'])
+  _execute_django_command('shell_plus')
 cli.command(shell)
 
 
@@ -266,15 +314,15 @@ cli.command(update_remote, name='update-remote')
 
 def migrate():
   """Make migrations and run them."""
-  execute_from_command_line(['manage.py', 'makemigrations'])
-  execute_from_command_line(['manage.py', 'migrate'])
+  _execute_django_command('makemigrations')
+  _execute_django_command('migrate')
 cli.command(migrate)
 
 
 def clear_cache():
   """Clear expired session data from the database-backed cache."""
   print 'Clearing database cache...'
-  execute_from_command_line(['manage.py', 'clearsessions'])
+  _execute_django_command('clearsessions')
 cli.command(clear_cache, name='clear-cache')
 
 

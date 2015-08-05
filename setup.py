@@ -10,7 +10,9 @@ if __name__ == '__main__':
     author_email='nick@unb.services',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+      'flake8',  # linting
+    ],
     license='MIT',
     url='https://bitbucket.org/unbsolutions/unb-cli',
     entry_points='''

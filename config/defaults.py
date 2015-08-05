@@ -5,6 +5,7 @@ Default Project-Agnostic configuration for unb-cli
 """
 
 import os
+import project
 
 
 # Required Project Paths
@@ -30,9 +31,19 @@ def merge_overrides(overrides):
   """
   overrides = _clean_config_dict(overrides)
 
-  PROJECT_PATH = overrides['PROJECT_PATH']
+  ROOT_PATH = os.path.abspath(os.sep)
+  HOME_PATH = os.environ.get('HOME')
 
-  APP_DIRNAME = overrides['APP_DIRNAME']
+  try:
+    project_path = overrides['PROJECT_PATH']
+  except KeyError:
+    project_path = project.current_project_path()
+    if project_path == ROOT_PATH:
+      project_path = HOME_PATH
+
+  PROJECT_PATH = project_path
+
+  APP_DIRNAME = overrides.get('APP_DIRNAME', '')
   APP_PATH = os.path.join(PROJECT_PATH, APP_DIRNAME)
 
   # More-or-Less Standard Locations
