@@ -49,7 +49,7 @@ from lib.commands.commands import arg, Group
 import utils
 
 import project
-from config import config
+from config import config, get_project_path
 
 try:
   from django.core.management import execute_from_command_line
@@ -65,10 +65,18 @@ except ImportError:
 # ---------
 
 def _execute_django_command(name=None, args=None):
-  name = name or 'help'
-  args = args or []
-  argv = ['manage.py', name] + args
-  return execute_from_command_line(argv)
+  _source()
+  try:
+    from django.core.management import execute_from_command_line
+    name = name or 'help'
+    args = args or []
+    argv = ['manage.py', name] + args
+    return execute_from_command_line(argv)
+  except ImportError:
+    cmd = ''
+    if args:
+      cmd = ' '.join([str(arg) for arg in args])
+    print 'Not in a Django project.  Did not run command: %s' % cmd
 
 
 def _in_project():
@@ -87,9 +95,24 @@ def _is_django_project():
 #   sourced the virtual environment.
 def _source():
   """Add the virtual environment to the front of the system PATH."""
+  venv = _get_venv()
+  if venv:
+    venv_bin = os.path.join(venv, 'bin')
+    venv_sp = os.path.join(venv, 'lib', 'python2.7', 'site-packages')
+
+    if venv_bin not in os.environ['PATH'].split(os.pathsep):
+      os.environ['PATH'] = venv_bin + os.pathsep + os.environ['PATH']
+
+    if venv_sp not in sys.path:
+      sys.path.insert(1, venv_sp)
+
+
+def _get_venv():
   venv = os.path.join(config.PROJECT_PATH, 'venv')
-  if venv not in os.environ['PATH'].split(os.pathsep):
-    os.environ['PATH'] = venv + os.pathsep + os.environ['PATH']
+  if os.path.exists(venv):
+    return venv
+  return None
+
 
 
 # Helpers
@@ -347,5 +370,26 @@ cli.command(list_projects, name='list-projects')
 
 def current_project():
   """Get the project the current working directory is in."""
-  print project.get_project_name(project.current_project_path())
+  project_name = project.get_project_name(project.current_project_path())
+  if project_name:
+    print project_name
+  else:
+    print 'Not in a project.'
 cli.command(current_project, name='current-project')
+
+
+@arg('project_name')
+def venv_activate_path(project_name):
+  """Return a path to the project's venv/bin/activate script."""
+  path = get_project_path(project_name)
+  activate_path = os.path.join(path, 'venv', 'bin', 'activate')
+  print activate_path
+cli.command(venv_activate_path, name='venv-activate-path')
+
+
+@arg('project_name')
+def project_path(project_name):
+  """Return the project_name's PROJECT_ROOT config value."""
+  project_path = get_project_path(project_name)
+  print project_path
+cli.command(project_path, name='project-path')

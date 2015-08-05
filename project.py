@@ -61,4 +61,6 @@ def get_project_name(project_path):
 
   TODO(nick): Allow the project name to differ from the project directory name.
   """
-  return os.path.split(project_path)[-1]
+  if project_path:
+    return os.path.split(project_path)[-1]
+  return ''

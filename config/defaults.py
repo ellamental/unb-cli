@@ -38,7 +38,7 @@ def merge_overrides(overrides):
     project_path = overrides['PROJECT_PATH']
   except KeyError:
     project_path = project.current_project_path()
-    if project_path == ROOT_PATH:
+    if not project_path:
       project_path = HOME_PATH
 
   PROJECT_PATH = project_path

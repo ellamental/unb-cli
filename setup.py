@@ -15,9 +15,12 @@ if __name__ == '__main__':
     ],
     license='MIT',
     url='https://bitbucket.org/unbsolutions/unb-cli',
+    scripts=[
+      'scripts/unb.sh',
+    ],
     entry_points='''
       [console_scripts]
-      unb=scripts.unb:cli
+      unb-cli=scripts.unb:cli
     ''',
     classifiers=[
       'Development Status :: 2 - Pre-Alpha',

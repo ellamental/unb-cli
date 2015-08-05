@@ -60,6 +60,8 @@ def get_default_config_module():
 
 
 def get_config_module(project_name):
+  if not project_name:
+    return {}
   project_filename = project_name + '.py'
   config_path = os.path.join(cfg.PROJECTS_PATH, project_filename)
   if os.path.exists(config_path):
@@ -102,6 +104,11 @@ def get_config(project_name):
 def get_current_config():
   project_name = project.get_project_name(project.current_project_path())
   return get_config(project_name)
+
+
+def get_project_path(project_name):
+  proj_conf = get_config(project_name)
+  return proj_conf.get('PROJECT_PATH')
 
 
 config = get_current_config()
