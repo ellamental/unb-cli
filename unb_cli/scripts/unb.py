@@ -48,7 +48,7 @@ from lib.commands.commands import arg, Group
 
 from unb_cli import project
 from unb_cli import version
-from unb_cli.config import config
+from unb_cli.config.utils import get_current_config
 from unb_cli.config.utils import get_project_path
 
 try:
@@ -59,6 +59,9 @@ except ImportError:
     if args:
       cmd = ' '.join([str(arg) for arg in args])
     print 'Not in a Django project.  Did not run command: %s' % cmd
+
+
+config = get_current_config()
 
 
 # Utilities

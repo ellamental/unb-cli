@@ -2,11 +2,11 @@
 
 import os
 
-import cli_config as cfg
+from unb_cli.config import cli as config_cli
 
 
 def list_projects():
-  filenames = os.listdir(cfg.PROJECTS_PATH)
+  filenames = os.listdir(config_cli.PROJECTS_PATH)
   return [f[:-3] for f in filenames
           if f.endswith('.py') and not f.startswith('__')]
 
@@ -22,7 +22,7 @@ def current_project_path():
   while True:
     if os.path.exists(os.path.join(current_dir, '.git')):
       return current_dir
-    if not current_dir or current_dir == cfg.ROOT_PATH:
+    if not current_dir or current_dir == config_cli.ROOT_PATH:
       return None
     current_dir = os.path.dirname(current_dir)
 
@@ -55,22 +55,22 @@ def make_config_dir():
                   project-name.py
                   ...
   """
-  if not os.path.exists(cfg.UNB_CLI_D_PATH):
+  if not os.path.exists(config_cli.UNB_CLI_D_PATH):
     try:
-      os.makedirs(cfg.UNB_CLI_D_PATH)
+      os.makedirs(config_cli.UNB_CLI_D_PATH)
     except OSError:
       print "An error occured, please create directories manually."
       raise
 
-  if not os.path.exists(cfg.CONFIG_PATH):
-    with open(cfg.CONFIG_PATH, 'a+') as f:
+  if not os.path.exists(config_cli.CONFIG_PATH):
+    with open(config_cli.CONFIG_PATH, 'a+') as f:
       f.write('')
       # could also do:
       # os.utime(CONFIG_PATH, None)  # roughly equivalent to: touch CONFIG_PATH
 
-  if not os.path.exists(cfg.PROJECTS_PATH):
+  if not os.path.exists(config_cli.PROJECTS_PATH):
     try:
-      os.makedirs(cfg.PROJECTS_PATH)
+      os.makedirs(config_cli.PROJECTS_PATH)
     except OSError:
       print "An error occured, please create directories manually."
       raise

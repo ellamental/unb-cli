@@ -22,8 +22,9 @@ Each overwrites values from the previous.
 import os
 import sys
 
-from unb_cli import cli_config as cfg
+from . import cli as config_cli
 from . import defaults
+
 from unb_cli import project
 
 
@@ -59,8 +60,9 @@ def find_config_modules(project_name):
 # ==============
 
 def get_default_config_module():
-  config_module = __import__(cfg.DEFAULT_CONFIG_DOTTED_PATH)
-  defaults_module = getattr(config_module, cfg.DEFAULT_CONFIG_MODULE_NAME)
+  config_module = __import__(config_cli.DEFAULT_CONFIG_DOTTED_PATH)
+  defaults_module = getattr(config_module,
+                            config_cli.DEFAULT_CONFIG_MODULE_NAME)
   return defaults_module
 
 
@@ -68,9 +70,9 @@ def get_config_module(project_name):
   if not project_name:
     return {}
   project_filename = project_name + '.py'
-  config_path = os.path.join(cfg.PROJECTS_PATH, project_filename)
+  config_path = os.path.join(config_cli.PROJECTS_PATH, project_filename)
   if os.path.exists(config_path):
-    dotted_name = '.'.join([cfg.PROJECTS_DIRNAME, project_name])
+    dotted_name = '.'.join([config_cli.PROJECTS_DIRNAME, project_name])
     packages_module = __import__(dotted_name)
     project_module = getattr(packages_module, project_name)
     return project_module
@@ -107,6 +109,7 @@ def get_config(project_name):
 
 
 def get_current_config():
+  sys.path.append(config_cli.UNB_CLI_D_PATH)
   project_name = project.get_project_name(project.current_project_path())
   return get_config(project_name)
 
