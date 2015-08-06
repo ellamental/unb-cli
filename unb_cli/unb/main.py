@@ -44,23 +44,12 @@ import subprocess
 import sys
 
 import argparse
-from lib.commands.commands import arg, Group
+from lib.commands.commands import arg
 
 from unb_cli import version
 
 from . import cli
 from . import config
-
-try:
-  from django.core.management import execute_from_command_line
-except ImportError:
-  def execute_from_command_line(args):
-    cmd = ''
-    if args:
-      cmd = ' '.join([str(arg) for arg in args])
-    print 'Not in a Django project.  Did not run command: %s' % cmd
-
-
 
 
 # Utilities
@@ -106,7 +95,6 @@ def _get_venv():
   if os.path.exists(venv):
     return venv
   return None
-
 
 
 # Helpers

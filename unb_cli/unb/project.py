@@ -1,13 +1,11 @@
 import os
-import shutil
-import subprocess
-import sys
 
-import argparse
 from lib.commands.commands import arg, Group
 
 from unb_cli import project
 from unb_cli.config.utils import get_project_path
+
+from . import config
 
 
 # Projects

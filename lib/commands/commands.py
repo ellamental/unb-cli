@@ -203,7 +203,6 @@ class Group(object):
     if group._init_func:
       doc = self._parse_doc(group._init_func.__doc__)
 
-    title = doc.get('title', group.title)
     body = doc.get('body', group.description)
 
     parser = self.subparsers.add_parser(
@@ -242,7 +241,7 @@ class Group(object):
     del args._func
 
     # Call the initialization function, if provided.
-    if self._init_func():
+    if self._init_func:
       self._init_func()
 
     # Finally dispatch the args to the handler.

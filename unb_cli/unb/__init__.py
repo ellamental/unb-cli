@@ -32,9 +32,13 @@ def cli_init():
       config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
 
 
-
 cli = Group(cli_init)
-from . import main  # Adds directly to cli
+
+# DEPRECATED: main imports cli (above) and adds commands directly to it.  This
+#   style has been deprecated in favor of the approach used below, where each
+#   module is a self-contained group, that is then imported and registered
+#   here.
+from . import main  # noqa
 
 # Each module under this exports ``group`` which is added here.
 from . import project

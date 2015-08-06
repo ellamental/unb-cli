@@ -53,7 +53,8 @@ class Config(dict):
 
 def find_config_modules(project_name):
   """Check standard locations for config modules and return them if present."""
-  project_path = project.get_path(project_name)
+  # TODO(nick): Finish me!
+  project.get_path(project_name)
 
 
 # Import Modules
