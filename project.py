@@ -5,29 +5,6 @@ import os
 import cli_config as cfg
 
 
-def make_config_dir():
-  """Create a config directory structure in the user's home directory."""
-  if not os.path.exists(cfg.UNB_CLI_D_PATH):
-    try:
-      os.makedirs(cfg.UNB_CLI_D_PATH)
-    except OSError:
-      print "An error occured, please create directories manually."
-      raise
-
-  if not os.path.exists(cfg.CONFIG_PATH):
-    with open(cfg.CONFIG_PATH, 'a+') as f:
-      f.write('')
-      # could also do:
-      # os.utime(CONFIG_PATH, None)  # roughly equivalent to: touch CONFIG_PATH
-
-  if not os.path.exists(cfg.PROJECTS_PATH):
-    try:
-      os.makedirs(cfg.PROJECTS_PATH)
-    except OSError:
-      print "An error occured, please create directories manually."
-      raise
-
-
 def list_projects():
   filenames = os.listdir(cfg.PROJECTS_PATH)
   return [f[:-3] for f in filenames
@@ -61,3 +38,39 @@ def get_project_name(project_path):
   if project_path:
     return os.path.split(project_path)[-1]
   return ''
+
+
+# UNB-CLI Configuration Initialization
+# ====================================
+
+def make_config_dir():
+  """Create a standard config directory structure in the user's home directory.
+
+  The directory structure should be:
+
+      $HOME/
+          .unb-cli.d/
+              config.py
+              projects/
+                  project-name.py
+                  ...
+  """
+  if not os.path.exists(cfg.UNB_CLI_D_PATH):
+    try:
+      os.makedirs(cfg.UNB_CLI_D_PATH)
+    except OSError:
+      print "An error occured, please create directories manually."
+      raise
+
+  if not os.path.exists(cfg.CONFIG_PATH):
+    with open(cfg.CONFIG_PATH, 'a+') as f:
+      f.write('')
+      # could also do:
+      # os.utime(CONFIG_PATH, None)  # roughly equivalent to: touch CONFIG_PATH
+
+  if not os.path.exists(cfg.PROJECTS_PATH):
+    try:
+      os.makedirs(cfg.PROJECTS_PATH)
+    except OSError:
+      print "An error occured, please create directories manually."
+      raise

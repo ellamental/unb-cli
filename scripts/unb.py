@@ -49,7 +49,8 @@ from lib.commands.commands import arg, Group
 import utils
 
 import project
-from config import config, get_project_path
+from config import config
+from config.utils import get_project_path
 
 try:
   from django.core.management import execute_from_command_line
