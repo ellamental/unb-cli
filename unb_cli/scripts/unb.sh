@@ -4,19 +4,11 @@
 #     source $HOME/.local/bin/unb.sh
 
 
-
 function unb-deactivate-virtualenv () {
     # If a virtualenv is already active, deactivate it.
     if hash deactivate 2>/dev/null; then
         deactivate
     fi
-}
-
-function unb-activate-virtualenv () {
-    echo "Activating virtual environment..."
-    VENV_PATH="$(unb-cli project venv-activate-path)"
-    echo "    Sourcing " $VENV_PATH
-    source $VENV_PATH
 }
 
 
@@ -34,10 +26,10 @@ function unb () {
     if [ "$1" == "go" ]; then
         if [ -z "$2" ]; then
             project_name="unb-platform"
-            projectpath="$(unb-cli project-path unb-platform)"
+            projectpath="$(unb-cli project path unb-platform)"
         else
             project_name=$2
-            projectpath="$(unb-cli project-path $project_name)"
+            projectpath="$(unb-cli project path $project_name)"
         fi
 
         cd $projectpath
