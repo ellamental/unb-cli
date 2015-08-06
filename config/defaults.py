@@ -1,8 +1,4 @@
-"""
-Default Project-Agnostic configuration for unb-cli
-==================================================
-
-"""
+"""Default Project-Agnostic configuration for unb-cli"""
 
 import os
 import project

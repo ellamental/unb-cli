@@ -1,6 +1,5 @@
 """
 UNB CLI Default Configuration
-=============================
 
 Project paths and settings.
 

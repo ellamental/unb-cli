@@ -1,7 +1,4 @@
-"""
-Creating and managing unb-cli projects.
-
-"""
+"""Creating and managing unb-cli projects."""
 
 import os
 
