@@ -14,7 +14,7 @@ function unb-deactivate-virtualenv () {
 
 function unb-activate-virtualenv () {
     echo "Activating virtual environment..."
-    VENV_PATH="$(unb-cli venv-activate-path)"
+    VENV_PATH="$(unb-cli project venv-activate-path)"
     echo "    Sourcing " $VENV_PATH
     source $VENV_PATH
 }
@@ -44,7 +44,7 @@ function unb () {
 
         # Should check if we need to (de)activate.
         unb-deactivate-virtualenv
-        activate_path="$(unb-cli venv-activate-path $project_name)"
+        activate_path="$(unb-cli project venv-activate-path $project_name)"
         source $activate_path
         echo "Go go go!"
     else

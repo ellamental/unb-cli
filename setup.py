@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ],
     entry_points='''
       [console_scripts]
-      unb-cli=unb_cli.scripts.unb:cli
+      unb-cli=unb_cli.unb:cli
     ''',
     classifiers=[
       'Development Status :: 2 - Pre-Alpha',

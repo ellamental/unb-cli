@@ -46,10 +46,10 @@ import sys
 import argparse
 from lib.commands.commands import arg, Group
 
-from unb_cli import project
 from unb_cli import version
-from unb_cli.config.utils import get_current_config
-from unb_cli.config.utils import get_project_path
+
+from . import cli
+from . import config
 
 try:
   from django.core.management import execute_from_command_line
@@ -61,7 +61,6 @@ except ImportError:
     print 'Not in a Django project.  Did not run command: %s' % cmd
 
 
-config = get_current_config()
 
 
 # Utilities
@@ -84,14 +83,6 @@ def _execute_django_command(name=None, args=None):
 
 def _in_project():
   return config.PROJECT_PATH != config.HOME_PATH
-
-
-def _is_django_project():
-  """A, not totally reliable, test if we're in a Django project."""
-  managepy_path = os.path.join(config.PROJECT_PATH, 'manage.py')
-  if os.path.exists(managepy_path):
-    return True
-  return False
 
 
 # TODO(nick): Currently this is unused.  We assume that the user has already
@@ -158,24 +149,6 @@ def _build_docs():
 
 # Commands
 # --------
-
-def cli_init():
-  """Project management utilities."""
-  project_path = config.get('PROJECT_PATH', config.HOME_PATH)
-
-  if project_path != config.HOME_PATH:
-    # Add the project path to sys.path for all utilities.
-    sys.path.append(config.PROJECT_PATH)
-
-  if _is_django_project():
-    # Set the default settings module.
-    os.environ.setdefault(
-      'DJANGO_SETTINGS_MODULE',
-      config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
-
-
-cli = Group(cli_init)
-
 
 @arg('component', nargs='?')
 def build(component=None):
@@ -351,61 +324,3 @@ def clear_cache():
   print 'Clearing database cache...'
   _execute_django_command('clearsessions')
 cli.command(clear_cache, name='clear-cache')
-
-
-def mkconfig():
-  """Make the UNB CLI config directory structure."""
-  project.make_config_dir()
-cli.command(mkconfig)
-
-
-
-def cli_project_init():
-  """Commands for managing projects.
-
-  Just some commands.
-  """
-  pass
-
-cli_project = Group(cli_project_init)
-cli.add_group(cli_project, name='project')
-
-
-def list_projects():
-  """List projects configured to use UNB CLI."""
-  projects = project.list_all()
-  projects.sort()
-  if projects:
-    print 'Projects(%s):' % len(projects)
-    for project_name in projects:
-      print '  - ', project_name
-  else:
-    print 'No projects found.'
-cli_project.command(list_projects, name='list')
-
-
-def current_project():
-  """Get the project the current working directory is in."""
-  project_name = project.get_project_name(project.current_project_path())
-  if project_name:
-    print project_name
-  else:
-    print 'Not in a project.'
-cli.command(current_project, name='current-project')
-
-
-@arg('project_name')
-def venv_activate_path(project_name):
-  """Return a path to the project's venv/bin/activate script."""
-  path = get_project_path(project_name)
-  activate_path = os.path.join(path, 'venv', 'bin', 'activate')
-  print activate_path
-cli.command(venv_activate_path, name='venv-activate-path')
-
-
-@arg('project_name')
-def project_path(project_name):
-  """Return the project_name's PROJECT_ROOT config value."""
-  project_path = get_project_path(project_name)
-  print project_path
-cli.command(project_path, name='project-path')

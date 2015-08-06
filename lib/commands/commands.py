@@ -117,7 +117,8 @@ class Group(object):
                title=''):
     self._init_func = init_func
 
-    title = title or 'Commands'
+    self.title = title or 'Commands'
+    self.description = description
 
     if replace_underscores_with_dashes is not None:
       self.REPLACE_UNDERSCORES_WITH_DASHES = replace_underscores_with_dashes
@@ -130,7 +131,7 @@ class Group(object):
       description=description,
     )
     self.subparsers = self.group.add_subparsers(
-      title=title,
+      title=self.title,
       metavar='',
     )
     self.subparsers_registry = {}
@@ -202,15 +203,14 @@ class Group(object):
     if group._init_func:
       doc = self._parse_doc(group._init_func.__doc__)
 
-    title = doc.get('title', '')
-    body = doc.get('body', '')
+    title = doc.get('title', group.title)
+    body = doc.get('body', group.description)
 
     parser = self.subparsers.add_parser(
       name,
       prog='%s %s' % (self.group.prog, name),
-      help=title,
-      description=title,
-      epilog=body,
+      help=body,
+      description=body,
       formatter_class=self.FORMATTER_CLASS,
     )
 
