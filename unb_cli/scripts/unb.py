@@ -359,9 +359,21 @@ def mkconfig():
 cli.command(mkconfig)
 
 
+
+def cli_project_init():
+  """Commands for managing projects.
+
+  Just some commands.
+  """
+  pass
+
+cli_project = Group(cli_project_init)
+cli.add_group(cli_project, name='project')
+
+
 def list_projects():
   """List projects configured to use UNB CLI."""
-  projects = project.list_projects()
+  projects = project.list_all()
   projects.sort()
   if projects:
     print 'Projects(%s):' % len(projects)
@@ -369,7 +381,7 @@ def list_projects():
       print '  - ', project_name
   else:
     print 'No projects found.'
-cli.command(list_projects, name='list-projects')
+cli_project.command(list_projects, name='list')
 
 
 def current_project():

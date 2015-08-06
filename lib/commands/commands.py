@@ -117,6 +117,8 @@ class Group(object):
                title=''):
     self._init_func = init_func
 
+    title = title or 'Commands'
+
     if replace_underscores_with_dashes is not None:
       self.REPLACE_UNDERSCORES_WITH_DASHES = replace_underscores_with_dashes
     if formatter_class is not None:
@@ -128,7 +130,7 @@ class Group(object):
       description=description,
     )
     self.subparsers = self.group.add_subparsers(
-      title=title or 'Commands',
+      title=title,
       metavar='',
     )
     self.subparsers_registry = {}
@@ -189,13 +191,48 @@ class Group(object):
     self.subparsers_registry[func_name] = parser
     return parser
 
+  def add_group(self, group, name, help=''):
+    '''Explicitly register a handler(func) for subcommand(func).
+
+    Args:
+      group: An instance of Group.
+      name: Name to register the Group.
+    '''
+    doc = {}
+    if group._init_func:
+      doc = self._parse_doc(group._init_func.__doc__)
+
+    title = doc.get('title', '')
+    body = doc.get('body', '')
+
+    parser = self.subparsers.add_parser(
+      name,
+      prog='%s %s' % (self.group.prog, name),
+      help=title,
+      description=title,
+      epilog=body,
+      formatter_class=self.FORMATTER_CLASS,
+    )
+
+    parser.add_argument('args', nargs='*')
+
+    def dispatch_wrapper(args):
+      return group.dispatch([name] + args)
+
+    parser.set_defaults(_func=dispatch_wrapper)
+
+    # Argparse doesn't have an easy way to get a list of subparsers for a
+    # group.  So we build one as we add subparsers.
+    self.subparsers_registry[name] = parser
+    return parser
+
   def dispatch(self, argv=None):
     if argv is None:
       argv = sys.argv
 
-    # If the command is called with no arguments, print help.
+    # If no subcommand is supplied to a subparser, print help and exit.
     if len(argv) == 1:
-      argv += ['-h']
+      argv = argv + ['-h']
 
     # Parse the args, including the subparser
     args = self.group.parse_args(argv[1:])
