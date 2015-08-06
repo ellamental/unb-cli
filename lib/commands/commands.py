@@ -114,11 +114,13 @@ class Group(object):
                replace_underscores_with_dashes=None,
                formatter_class=None,
                description='',
-               title=''):
+               title='',
+               epilog=''):
     self._init_func = init_func
 
     self.title = title or 'Commands'
     self.description = description
+    self.epilog = epilog
 
     if replace_underscores_with_dashes is not None:
       self.REPLACE_UNDERSCORES_WITH_DASHES = replace_underscores_with_dashes
@@ -164,85 +166,92 @@ class Group(object):
       parts['body'] = textwrap.dedent(sp[1]).strip()
     return parts
 
-  def command(self, func, name=None):
-    '''Explicitly register a handler(func) for subcommand(func).
+  def register(self, handler, name=None, doc=None):
+    """Register a handler for a command(name).
 
     Args:
-      func: Subcommand handler called with parsed arguments.
-      name: Specify a name for the command other than the function name.
-    '''
-    func_name = self._get_name(func, name)
-    doc = self._parse_doc(func.__doc__)
-    func_ARGPARSE_ARGS_LIST = getattr(func, 'ARGPARSE_ARGS_LIST', [])
+      handler: Command handler called with parsed arguments.
+      name: The command name is introspected from the handler, unless specified
+        here.
+    """
+    handler_name = self._get_name(handler, name)
+    if doc:
+      doc = self._parse_doc(doc)
+    else:
+      doc = self._parse_doc(handler.__doc__)
+    handler_ARGPARSE_ARGS_LIST = getattr(handler, 'ARGPARSE_ARGS_LIST', [])
 
     parser = self.subparsers.add_parser(
-      func_name,
+      handler_name,
       help=doc['title'],
       description=doc['title'],
       epilog=doc['body'],
       formatter_class=self.FORMATTER_CLASS,
     )
-    for arguments in func_ARGPARSE_ARGS_LIST:
+    for arguments in handler_ARGPARSE_ARGS_LIST:
       args, kwargs = arguments
       parser.add_argument(*args, **kwargs)
-    parser.set_defaults(_func=func)
+    parser.set_defaults(_handler=handler)
 
     # Argparse doesn't have an easy way to get a list of subparsers for a
     # group.  So we build one as we add subparsers.
-    self.subparsers_registry[func_name] = parser
+    self.subparsers_registry[handler_name] = parser
     return parser
 
-  def add_group(self, group, name, help=''):
-    '''Explicitly register a handler(func) for subcommand(func).
+  def command(self, name=None):
+    def register_wrapper(handler):
+      self.register(handler, name)
+      return handler
+    return register_wrapper
+
+  def add_group(self, group, name):
+    """Register a subcommand parser.
 
     Args:
       group: An instance of Group.
       name: Name to register the Group.
-    '''
-    doc = {}
-    if group._init_func:
-      doc = self._parse_doc(group._init_func.__doc__)
-
-    body = doc.get('body', group.description)
-
+    """
+    # print group.epilog
     parser = self.subparsers.add_parser(
       name,
       prog='%s %s' % (self.group.prog, name),
-      help=body,
-      description=body,
+      help=group.title,
+      description=group.description,
+      epilog=group.epilog,
       formatter_class=self.FORMATTER_CLASS,
     )
 
     parser.add_argument('args', nargs='*')
-
-    def dispatch_wrapper(args):
-      return group.dispatch([name] + args)
-
-    parser.set_defaults(_func=dispatch_wrapper)
+    # parser.set_defaults(_func=group.dispatch)
+    parser.set_defaults(_handler=group)
 
     # Argparse doesn't have an easy way to get a list of subparsers for a
     # group.  So we build one as we add subparsers.
     self.subparsers_registry[name] = parser
     return parser
 
-  def dispatch(self, argv=None):
-    if argv is None:
-      argv = sys.argv
+  def dispatch(self, args=None):
+    if args is None:
+      args = sys.argv
+    # command_name = args[0]
+    args = args[1:]
 
-    # If no subcommand is supplied to a subparser, print help and exit.
-    if len(argv) == 1:
-      argv = argv + ['-h']
+    # No args in the initial invocation should print the help message.
+    if not args:
+      args = ['-h']
 
-    # Parse the args, including the subparser
-    args = self.group.parse_args(argv[1:])
+    parsed = self.group.parse_args(args)
 
-    # Store the callback func, then remove it from the namespace
-    func = args._func
-    del args._func
+    handler = parsed._handler
+    del parsed._handler
 
-    # Call the initialization function, if provided.
     if self._init_func:
       self._init_func()
 
-    # Finally dispatch the args to the handler.
-    func(**vars(args))
+    if isinstance(handler, Group):
+      if not parsed.args:
+        handler.group.print_help()
+      else:
+        handler.dispatch([args[0]] + parsed.args)
+    else:
+      handler(**vars(parsed))

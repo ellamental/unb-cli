@@ -168,7 +168,7 @@ def build(component=None):
   else:
     # Build the specified component
     components[component]()
-cli.command(build)
+cli.register(build)
 
 
 def deploy():
@@ -181,7 +181,7 @@ def deploy():
   subprocess.call(['git', 'push', 'heroku', 'master'])
   subprocess.call(
     ['heroku', 'run', './manage.py', 'migrate'])
-cli.command(deploy)
+cli.register(deploy)
 
 
 @arg('name', nargs='?',
@@ -191,7 +191,7 @@ cli.command(deploy)
 def m(name, args):
   """Run manage.py commands (using the dev environment settings)."""
   _execute_django_command(name, args)
-cli.command(m)
+cli.register(m)
 
 
 # TODO(nick): This should be a `run *` command that can run other things too.
@@ -207,7 +207,7 @@ def runserver():
                     shell=True)
   except KeyboardInterrupt:
     pass
-cli.command(runserver)
+cli.register(runserver)
 
 
 def lint():
@@ -229,20 +229,20 @@ def lint():
   """
   if _in_project():
     subprocess.call(['flake8', config.PROJECT_PATH])
-cli.command(lint)
+cli.register(lint)
 
 
 def test():
   """Run tests and linters."""
   lint()
   _execute_django_command('test')
-cli.command(test)
+cli.register(test)
 
 
 def shell():
   """Run shell."""
   _execute_django_command('shell_plus')
-cli.command(shell)
+cli.register(shell)
 
 
 @arg('-v',
@@ -264,13 +264,13 @@ def install_requirements(verbose=False):
   subprocess.call(cmd(config.DEV_REQUIREMENTS_FILE_PATH))
   # TODO(nick): Install npm dependencies per frontend project.
   #   $ npm install
-cli.command(install_requirements, name='install-requirements')
+cli.register(install_requirements, name='install-requirements')
 
 
 def licenses():
   """List licenses of all 3rd party packages."""
   subprocess.call(['yolk', '-l', '-f', 'license'])
-cli.command(licenses)
+cli.register(licenses)
 
 
 def get_version():
@@ -278,14 +278,14 @@ def get_version():
   v = version.read(config.VERSION_FILE_PATH)
   if v is not None:
     print v
-cli.command(get_version, name='version')
+cli.register(get_version, name='version')
 
 
 @arg('part', nargs='?', default='patch')
 def bump(part):
   """Bump the version number."""
   version.bump_file(config.VERSION_FILE_PATH, part, '0.0.0')
-cli.command(bump)
+cli.register(bump)
 
 
 @arg('app_name')
@@ -297,18 +297,18 @@ def update_remote(app_name):
   """
   subprocess.call(['git', 'remote', 'rm', 'heroku'])
   subprocess.call(['heroku', 'git:remote', '-a', app_name, '--ssh-git'])
-cli.command(update_remote, name='update-remote')
+cli.register(update_remote, name='update-remote')
 
 
 def migrate():
   """Make migrations and run them."""
   _execute_django_command('makemigrations')
   _execute_django_command('migrate')
-cli.command(migrate)
+cli.register(migrate)
 
 
 def clear_cache():
   """Clear expired session data from the database-backed cache."""
   print 'Clearing database cache...'
   _execute_django_command('clearsessions')
-cli.command(clear_cache, name='clear-cache')
+cli.register(clear_cache, name='clear-cache')

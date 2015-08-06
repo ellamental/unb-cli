@@ -11,9 +11,23 @@ from . import config
 # Projects
 # ========
 
-group = Group(description='Project management utilities.')
+group = Group(
+  title='Project management utilities',
+  description='''Project management utilities.
+
+Tools that help you work with your projects, store and access configuration and
+consolidate your tooling across projects.
+''',
+  epilog='''Here's more information that's really only here for example.
+
+This epilog only shows up when you use the -h or --help options.  If you
+display help by running a sub-group with too few arguments, you will never see
+this!
+''',
+)
 
 
+@group.command(name='list')
 def project_list():
   """List projects configured to use UNB CLI."""
   projects = project.list_all()
@@ -24,9 +38,9 @@ def project_list():
       print '  - ', project_name
   else:
     print 'No projects found.'
-group.command(project_list, name='list')
 
 
+@group.command(name='current')
 def project_current():
   """Get the project the current working directory is in."""
   project_name = project.get_project_name(project.current_project_path())
@@ -34,9 +48,9 @@ def project_current():
     print project_name
   else:
     print 'Not in a project.'
-group.command(project_current, name='current')
 
 
+@group.command(name='venv-activate-path')
 @arg('project_name', nargs='?', default=None)
 def project_venv_activate_path(project_name):
   """Return a path to the project's venv/bin/activate script."""
@@ -46,9 +60,9 @@ def project_venv_activate_path(project_name):
     path = get_project_path(project_name)
   activate_path = os.path.join(path, 'venv', 'bin', 'activate')
   print activate_path
-group.command(project_venv_activate_path, name='venv-activate-path')
 
 
+@group.command(name='path')
 @arg('project_name', nargs='?', default=None)
 def project_path(project_name):
   """Return the PROJECT_ROOT config value (optionally for a project_name)."""
@@ -57,10 +71,9 @@ def project_path(project_name):
   else:
     project_path = get_project_path(project_name)
   print project_path
-group.command(project_path, name='path')
 
 
+@group.command()
 def mkconfig():
   """Make the UNB CLI config directory structure."""
   project.make_config_dir()
-group.command(mkconfig)
