@@ -1,7 +1,7 @@
 """Default Project-Agnostic configuration for unb-cli"""
 
 import os
-import project
+from unb_cli import project
 
 
 # Required Project Paths

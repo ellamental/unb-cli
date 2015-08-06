@@ -22,9 +22,9 @@ Each overwrites values from the previous.
 import os
 import sys
 
-import cli_config as cfg
-import defaults
-import project
+from unb_cli import cli_config as cfg
+from . import defaults
+from unb_cli import project
 
 
 class Config(dict):

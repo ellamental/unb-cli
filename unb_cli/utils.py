@@ -7,7 +7,7 @@ management project.
 
 """
 
-from config import config
+from unb_cli.config import config
 
 
 def version_string_to_tuple(version_string):

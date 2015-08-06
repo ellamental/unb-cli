@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 if __name__ == '__main__':
   setup(
     name='unb-cli',
-    version='0.0.1',
+    version='0.0.2',
     description='Command line utilities for UNB project development.',
     author='Nick Zarczynski',
     author_email='nick@unb.services',
@@ -16,11 +16,11 @@ if __name__ == '__main__':
     license='MIT',
     url='https://bitbucket.org/unbsolutions/unb-cli',
     scripts=[
-      'scripts/unb.sh',
+      'unb_cli/scripts/unb.sh',
     ],
     entry_points='''
       [console_scripts]
-      unb-cli=scripts.unb:cli
+      unb-cli=unb_cli.scripts.unb:cli
     ''',
     classifiers=[
       'Development Status :: 2 - Pre-Alpha',

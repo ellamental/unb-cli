@@ -1,6 +1,6 @@
 import sys
 
-import cli_config as cfg
+import unb_cli.cli_config as cfg
 from . import utils
 
 
