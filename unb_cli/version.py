@@ -1,61 +1,73 @@
-"""
-Useful Management Utilities
-===========================
+"""Read, write and bump version numbers."""
 
-A collection of management utilities that may be useful both in and outside the
-management project.
-
-"""
-
-from unb_cli.config import config
+import os
 
 
-def version_string_to_tuple(version_string):
-  """Convert a version_string to a tuple (major, minor, patch) of integers."""
-  return (int(n) for n in version_string.split('.'))
-
-
-def version_tuple_to_string(version_tuple):
-  """Convert a version_tuple (major, minor, patch) to a string."""
-  return '.'.join((str(n) for n in version_tuple))
-
-
-def read_version(version_filename=config.VERSION_FILE_PATH):
+def read(version_file_path, default=None):
   """Returns the version string as read from version_file.
 
   Args:
-    version_filename(str): Filename to read version from.
+    version_file_path(str):  File path to read version from.  May be absolute
+      or relative.
+    default(str):  Version to use if the version file was not found.
+
+  Returns (str) version or (None) if the file was not found and no default was
+  provided.
   """
-  with open(version_filename) as f:
+  if not os.path.isfile(version_file_path):
+    return default
+  with open(version_file_path) as f:
     return f.read().strip()
 
 
-def write_version(version, version_filename=config.VERSION_FILE_PATH):
+def write(version_file_path, version):
   """Writes a version string to version_file.
 
   Args:
-    version(str): The version as a string.
-    version_filename(str): Filename to write version to.
+    version(str):  The version as a string.
+    version_file_path(str):  File path to write version to.
   """
-  with open(version_filename, 'wb') as f:
+  with open(version_file_path, 'wb') as f:
     f.write(version)
 
 
-def bump_version(version, part='patch'):
+def bump(version, part='patch'):
   """Increments the `part` of a `version` by 1.
 
   Args:
-    version(str): The version string.
-    part(str): Which part of the version to bump 'major', 'minor', or 'patch'.
+    version(str):  The version string.
+    part(str):  Which part of the version to bump 'major', 'minor', or 'patch'.
 
-  Returns:
-    A string representing the bumpped version number.
+  Returns a string representing the bumpped version number.
   """
-  major, minor, patch = version_string_to_tuple(version)
+  major, minor, patch = _version_string_to_tuple(version)
   if not part or part == 'patch':
     patch += 1
   elif part == 'minor':
     minor += 1
   elif part == 'major':
     major += 1
-  return version_tuple_to_string((major, minor, patch))
+  return _version_tuple_to_string((major, minor, patch))
+
+
+def bump_file(version_file_path, part='patch', default='0.0.0'):
+  """Utility function to read, bump and write a version to a version file.
+
+  Args:
+    version_file_path(str):  File path to write version to.
+    part(str):  Which part of the version to bump 'major', 'minor', or 'patch'.
+    default(str):  Version to use if the version file was not found.
+  """
+  v = read(version_file_path, default)
+  v = bump(v, part)
+  write(version_file_path, v)
+
+
+def _version_string_to_tuple(version_string):
+  """Convert a version_string to a tuple (major, minor, patch) of integers."""
+  return (int(n) for n in version_string.split('.'))
+
+
+def _version_tuple_to_string(version_tuple):
+  """Convert a version_tuple (major, minor, patch) to a string."""
+  return '.'.join((str(n) for n in version_tuple))

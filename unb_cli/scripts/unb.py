@@ -309,15 +309,18 @@ def licenses():
 cli.command(licenses)
 
 
+def get_version():
+  """Get the version number of the current project."""
+  v = version.read(config.VERSION_FILE_PATH)
+  if v is not None:
+    print v
+cli.command(get_version, name='version')
+
+
 @arg('part', nargs='?', default='patch')
 def bump(part):
   """Bump the version number."""
-  if not os.path.isfile(config.VERSION_FILE_PATH):
-    v = '0.0.0'
-  else:
-    v = verison.read_version()
-  v = version.bump_version(v, part)
-  version.write_version(v)
+  version.bump_file(config.VERSION_FILE_PATH, part, '0.0.0')
 cli.command(bump)
 
 
