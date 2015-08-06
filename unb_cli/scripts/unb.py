@@ -47,7 +47,7 @@ import argparse
 from lib.commands.commands import arg, Group
 
 from unb_cli import project
-from unb_cli import utils
+from unb_cli import version
 from unb_cli.config import config
 from unb_cli.config.utils import get_project_path
 
@@ -313,13 +313,11 @@ cli.command(licenses)
 def bump(part):
   """Bump the version number."""
   if not os.path.isfile(config.VERSION_FILE_PATH):
-    version = '0.0.0'
-    version = utils.bump_version(version, part)
-    utils.write_version(version)
+    v = '0.0.0'
   else:
-    version = utils.read_version()
-    version = utils.bump_version(version, part)
-    utils.write_version(version)
+    v = verison.read_version()
+  v = version.bump_version(v, part)
+  version.write_version(v)
 cli.command(bump)
 
 
