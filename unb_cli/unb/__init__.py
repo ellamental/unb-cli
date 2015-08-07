@@ -39,6 +39,8 @@ cli = Group(cli_init)
 #   module is a self-contained group, that is then imported and registered
 #   here.
 from . import main  # noqa
+from . import django_commands  # noqa
+
 
 # Each module under this exports ``group`` which is added here.
 from . import project
