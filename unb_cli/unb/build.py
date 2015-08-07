@@ -52,3 +52,15 @@ def sphinx_api_docs(component=None):
     'management/setup',
     'setup.py',
   ])
+
+
+@group.command(name='egg')
+def py_egg():
+  """Build a Python egg."""
+  subprocess.call(['python', 'setup.py', 'sdist'])
+
+
+@group.command(name='egg-install')
+def py_egg_install():
+  """Install a Python egg locally (usually during development)."""
+  subprocess.call(['pip', 'install', '-e', '.'])
