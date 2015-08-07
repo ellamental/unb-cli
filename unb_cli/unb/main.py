@@ -38,8 +38,6 @@ The unb utility's documentation is available through the ``--help`` option.
 
 """
 
-import os
-import shutil
 import subprocess
 
 from lib.commands.commands import arg
@@ -59,79 +57,8 @@ def _in_project():
   return config.PROJECT_PATH != config.HOME_PATH
 
 
-# Helpers
-# -------
-
-def _build_apidocs():
-  # sphinx-apidoc: Build .rst docs from docstrings for all project modules.
-  subprocess.call([
-    'sphinx-apidoc',
-    '--force',         # Overwrite existing files.
-    '--module-first',  # Put module docs before submodule docs.
-    # '--no-headings',   # Don't create headings
-    '--separate',      # Create separate pages for each module
-    '--output-dir',
-    config.DOCS_MODULES_PATH,
-    config.PROJECT_PATH,       # Directory containing modules to document.
-    # exclude directories
-    'management/setup',
-    'setup.py',
-  ])
-
-
-def _build_docs():
-  cwd = os.getcwd()  # get current directory
-  try:
-    os.chdir(config.DOCS_PATH)
-    print 'Cleaning build directory... '
-    try:
-      shutil.rmtree(config.DOCS_BUILD_PATH)
-    except OSError:
-      # Catches the error when there is no build directory... This is not
-      # foolproof.  For example it could also catch permissions errors.
-      pass
-    print 'Building docs...'
-    # Inovke the Sphinx makefile to build the html documentation.
-    subprocess.call(['make', 'html'])
-  finally:
-    os.chdir(cwd)
-
-
 # Commands
 # --------
-
-@arg('component', nargs='?')
-def build(component=None):
-  """Build script(s).
-
-  Components may be built individually by passing a component name to this
-  command.
-
-      build       # Run all build scripts
-
-      build docs  # Build the docs
-
-      build js    # Build javascript files
-
-      build css   # Build css files
-  """
-  components = {
-    'docs': _build_docs
-  }
-
-  if not component:
-    # Build all components
-    components['docs']()
-    # components[]()
-  # elif component == 'frontend':
-  #   # Build all frontend components
-  #   components['js']()
-  #   components['css']()
-  else:
-    # Build the specified component
-    components[component]()
-cli.register(build)
-
 
 def deploy():
   """Deploy the project to various environments.

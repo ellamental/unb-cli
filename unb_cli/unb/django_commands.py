@@ -11,64 +11,40 @@ from . import config
 
 # Utilities
 # ---------
+from contextlib import contextmanager
 
-def _execute_django_command(name=None, args=None):
-  _source(site_packages=True)
-  try:
-    from django.core.management import execute_from_command_line
-    name = name or 'help'
-    args = args or []
-    argv = ['manage.py', name] + args
-    return execute_from_command_line(argv)
-  except ImportError:
-    cmd = ''
-    if args:
-      cmd = ' '.join([str(arg) for arg in args])
-    print 'Not in a Django project.  Did not run command: %s' % cmd
+
+@contextmanager
+def push_sys_path(path):
+  sys.path.insert(0, path)
+  yield
+  sys.path.pop(0)
 
 
 def _in_project():
   return config.PROJECT_PATH != config.HOME_PATH
 
 
-# Virtual Environment Utilities
-# =============================
-
-# TODO(nick): Currently this is unused.  We assume that the user has already
-#   sourced the virtual environment.
-def _source(site_packages=True, venv=False):
-  """Add the virtual environment to the front of the system PATH."""
-  venv_path = _get_venv_path()
-  if venv_path:
-
-    if site_packages:
-      venv_sp = os.path.join(venv_path, 'lib', 'python2.7', 'site-packages')
-      if venv_sp not in sys.path:
-        sys.path.insert(1, venv_sp)
-
-    if venv:
-      venv_bin = os.path.join(venv_path, 'bin')
-      if venv_bin not in os.environ['PATH'].split(os.pathsep):
-        os.environ['PATH'] = venv_bin + os.pathsep + os.environ['PATH']
+def activate_virtualenv(path):
+  activate_this = os.path.join(path, 'venv', 'bin', 'activate_this.py')
+  execfile(activate_this, dict(__file__=activate_this))
 
 
-# TODO(nick): Not really a Django command.  Move this somewhere else!
-def _get_venv_path():
-  venv = os.path.join(config.PROJECT_PATH, 'venv')
-  if os.path.exists(venv):
-    return venv
-  return None
+def _execute_django_command(name=None, args=None):
+  args = args or []
+  name = name or 'help'
 
+  activate_virtualenv(config.PROJECT_PATH)
+  try:
+    from django.core.management import execute_from_command_line
+  except ImportError:
+    cmd = ' '.join([str(arg) for arg in args])
+    print 'Not in a Django project.  Did not run command: %s' % cmd
+    return
 
-def _in_venv():
-  # NOTE:
-  # If you are using virtualenv (github.com/pypa/virtualenv), this answer is
-  # equally correct for Python 2 or Python 3. If you are using pyvenv
-  # (legacy.python.org/dev/peps/pep-0405), a virtualenv-equivalent built into
-  # Python 3.3+ (but not the same thing as virtualenv), then it uses
-  # sys.base_prefix instead of sys.real_prefix, and sys.base_prefix always
-  # exists; outside a pyvenv it is equal to sys.prefix.
-  return hasattr(sys, 'real_prefix')
+  argv = ['manage.py', name] + args
+  with push_sys_path(config.PROJECT_PATH):
+    execute_from_command_line(argv)
 
 
 # Commands to move somewhere else

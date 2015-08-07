@@ -74,7 +74,15 @@ def get_config_module(project_name):
   config_path = os.path.join(config_cli.PROJECTS_PATH, project_filename)
   if os.path.exists(config_path):
     dotted_name = '.'.join([config_cli.PROJECTS_DIRNAME, project_name])
+
+    # Add the config directory to the system path so we can import the config.
+    # Then remove it so we don't go clobbering imports elsewhere.
+    # TODO(nick): There's got to be a better way to do this!
+    if config_cli.UNB_CLI_D_PATH not in sys.path:
+      sys.path.append(config_cli.UNB_CLI_D_PATH)
     packages_module = __import__(dotted_name)
+    sys.path.remove(config_cli.UNB_CLI_D_PATH)
+
     project_module = getattr(packages_module, project_name)
     return project_module
   else:
@@ -110,7 +118,6 @@ def get_config(project_name):
 
 
 def get_current_config():
-  sys.path.append(config_cli.UNB_CLI_D_PATH)
   project_name = project.get_project_name(project.current_project_path())
   return get_config(project_name)
 

@@ -23,7 +23,8 @@ def cli_init():
 
   if project_path != config.HOME_PATH:
     # Add the project path to sys.path for all utilities.
-    sys.path.append(config.PROJECT_PATH)
+    if config.PROJECT_PATH not in sys.path:
+      sys.path.append(config.PROJECT_PATH)
 
   if _is_django_project():
     # Set the default settings module.
@@ -45,3 +46,6 @@ from . import django_commands  # noqa
 # Each module under this exports ``group`` which is added here.
 from . import project
 cli.add_group(project.group, name='project')
+
+from . import build
+cli.add_group(build.group, name='build')
