@@ -2,7 +2,7 @@ import os
 
 from lib.commands.commands import arg, Group
 
-from unb_cli import project
+from unb_cli import myprojects
 from unb_cli.config.utils import get_project_path
 
 from . import config
@@ -30,7 +30,7 @@ this!
 @group.command(name='list')
 def project_list():
   """List projects configured to use UNB CLI."""
-  projects = project.list_all()
+  projects = myprojects.list_all()
   projects.sort()
   if projects:
     print 'Projects(%s):' % len(projects)
@@ -43,7 +43,7 @@ def project_list():
 @group.command(name='current')
 def project_current():
   """Get the project the current working directory is in."""
-  project_name = project.get_project_name(project.current_project_path())
+  project_name = myprojects.get_project_name(myprojects.current_project_path())
   if project_name:
     print project_name
   else:
@@ -76,4 +76,4 @@ def project_path(project_name):
 @group.command()
 def mkconfig():
   """Make the UNB CLI config directory structure."""
-  project.make_config_dir()
+  myprojects.make_config_dir()

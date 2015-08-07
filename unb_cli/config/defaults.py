@@ -1,7 +1,7 @@
 """Default Project-Agnostic configuration for unb-cli"""
 
 import os
-from unb_cli import project
+from unb_cli import myprojects
 
 
 # Required Project Paths
@@ -33,7 +33,7 @@ def merge_overrides(overrides):
   try:
     project_path = overrides['PROJECT_PATH']
   except KeyError:
-    project_path = project.current_project_path()
+    project_path = myprojects.current_project_path()
     if not project_path:
       project_path = HOME_PATH
 

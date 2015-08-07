@@ -25,7 +25,7 @@ import sys
 from . import cli as config_cli
 from . import defaults
 
-from unb_cli import project
+from unb_cli import myprojects
 
 
 class Config(dict):
@@ -54,7 +54,7 @@ class Config(dict):
 def find_config_modules(project_name):
   """Check standard locations for config modules and return them if present."""
   # TODO(nick): Finish me!
-  project.get_path(project_name)
+  myprojects.get_path(project_name)
 
 
 # Import Modules
@@ -118,7 +118,7 @@ def get_config(project_name):
 
 
 def get_current_config():
-  project_name = project.get_project_name(project.current_project_path())
+  project_name = myprojects.get_project_name(myprojects.current_project_path())
   return get_config(project_name)
 
 

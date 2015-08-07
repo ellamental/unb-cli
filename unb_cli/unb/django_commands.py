@@ -5,12 +5,15 @@ import sys
 import argparse
 from lib.commands.commands import arg
 
+from unb_cli import myprojects
+
 from . import cli
 from . import config
 
 
-# Utilities
-# ---------
+# TODO(nick): Move everything until the next header somewhere else!
+# =================================================================
+
 from contextlib import contextmanager
 
 
@@ -30,6 +33,9 @@ def activate_virtualenv(path):
   execfile(activate_this, dict(__file__=activate_this))
 
 
+# Utilities
+# =========
+
 def _execute_django_command(name=None, args=None):
   args = args or []
   name = name or 'help'
@@ -47,25 +53,11 @@ def _execute_django_command(name=None, args=None):
     execute_from_command_line(argv)
 
 
-# Commands to move somewhere else
-# ===============================
+# Django Library
+# ==============
 
-# TODO(nick): Not really a Django command.  Move this somewhere else!
-def test():
-  """Run tests and linters."""
-  # lint: from main.py  # TODO(nick): Move this into a library!
-  if _in_project():
-    subprocess.call(['flake8', config.PROJECT_PATH])
-  # end lint
-  _execute_django_command('test')
-cli.register(test)
-
-
-# TODO(nick): Not really a Django command.  Move this somewhere else!
-def shell():
-  """Run shell."""
-  _execute_django_command('shell_plus')
-cli.register(shell)
+def dj_startproject(project_name, directory='.'):
+  subprocess.call(['django-admin.py', 'startproject', project_name, directory])
 
 
 # Django Commands
@@ -81,7 +73,12 @@ def m(name, args):
 cli.register(m)
 
 
-# TODO(nick): This should be a `run *` command that can run other things too.
+@arg('project_name')
+def django_start_project(project_name):
+  dj_startproject(project_name)
+cli.register(django_start_project, name='django-start-project')
+
+
 def runserver():
   """Run the development server and restart on crash."""
   try:
@@ -109,3 +106,27 @@ def clear_cache():
   print 'Clearing database cache...'
   _execute_django_command('clearsessions')
 cli.register(clear_cache, name='clear-cache')
+
+
+# Commands to move somewhere else
+# ===============================
+
+# TODO(nick): Not really a Django command.  Move this somewhere else!
+def test():
+  """Run tests and linters."""
+  # lint: from main.py  # TODO(nick): Move this into a library!
+  if _in_project():
+    subprocess.call(['flake8', config.PROJECT_PATH])
+  # end lint
+  _execute_django_command('test')
+cli.register(test)
+
+
+# TODO(nick): Not really a Django command.  Move this somewhere else!
+def shell():
+  """Run shell."""
+  if myprojects._is_django_project(config.PROJECT_PATH):
+    _execute_django_command('shell_plus')
+  else:
+    subprocess.call(['ipython'])
+cli.register(shell)

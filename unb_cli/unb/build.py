@@ -60,6 +60,7 @@ def py_egg():
   subprocess.call(['python', 'setup.py', 'sdist'])
 
 
+# This might not work...
 @group.command(name='egg-install')
 def py_egg_install():
   """Install a Python egg locally (usually during development)."""
