@@ -1,0 +1,26 @@
+# Python
+# ======
+
+# setup.py egg-info
+*.egg-info/
+
+# compiled files
+*.py[cod]
+{% if venv_dir %}
+# virtual environment
+{{ venv_dir }}
+{% endif %}
+# distributions
+dist
+
+
+# SQLite DB File
+# ==============
+
+db.sqlite3
+
+
+# OS Specific Files
+# =================
+
+.DS_Store
