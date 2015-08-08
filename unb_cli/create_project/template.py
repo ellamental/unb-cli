@@ -1,9 +1,13 @@
 # import pdb; pdb.set_trace()
 
 import os
+import logging
 
 import jinja2
 
+
+logger = logging.getLogger(__name__)
+logging.basicConfig()
 
 
 PACKAGE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -86,23 +90,29 @@ class Templates(object):
     return self.loader.get_template(template_path).render(env)
 
   def render_to_file(self, template_path, output_full_path, context=None,
-                     create_dirs=True):
+                     overwrite=False, create_dirs=True):
     content = self.render(template_path, context)
     if create_dirs:
       if not os.path.exists(os.path.dirname(output_full_path)):
         os.makedirs(os.path.dirname(output_full_path))
+    if os.path.exists(output_full_path):
+      if overwrite != True:
+        logger.info('Did not render.  File exists at: %s',
+                    os.path.basename(output_full_path))
+        return
+      else:
+        logger.warn('Overwriting file: %s', os.path.basename(output_full_path))
     with open(output_full_path, 'w') as f:
       f.write(content)
 
-  def renderf(self, template_path, context=None):
+  def renderf(self, template_path, context=None, overwrite=False):
     out_full_path = os.path.join(self.out_path, template_path)
-    self.render_to_file(template_path, out_full_path, context)
+    self.render_to_file(template_path, out_full_path, context, overwrite)
 
-  def _render_all_templates_to_file(self, extra_context=None):
-    """WARNING: This will overwrite existing files! You shouldn't use this!"""
+  def _render_all_templates_to_file(self, extra_context=None, overwrite=False):
     file_paths = os.listdir(self.templates_path)
     for file_path in file_paths:
-      self.renderf(file_path, extra_context)
+      self.render_to_file(file_path, extra_context, overwrite)
 
   def _render_license(self, license):
     """Render the LICENSE file based on the chosen license type.
@@ -113,23 +123,27 @@ class Templates(object):
     """
     pass
 
-  def make_dir(self, dirname):
+  def _make_dir(self, dirname):
     dir_path = os.path.join(self.out_path, dirname)
     if not os.path.exists(dir_path):
       os.makedirs(dir_path)
 
-  def make_dirs(self, dirnames=None):
+  def _make_dirs(self, dirnames=None):
     if dirnames is None:
       dirnames = self.config.get('create_directories')
     if dirnames:
       for dirname in dirnames:
-        self.make_dir(dirname)
+        self._make_dir(dirname)
 
-  def _render_everything_to_file(self, extra_context=None):
+  def render_project(self, extra_context=None):
     file_paths = os.listdir(self.templates_path)
+    rerenderable = self.config.get('rerenderable', [])
     for file_path in file_paths:
-      self.renderf(file_path, extra_context)
-    self.make_dirs()
+      if file_path in rerenderable:
+        self.renderf(file_path, extra_context, overwrite=True)
+      else:
+        self.renderf(file_path, extra_context, overwrite=False)
+    self._make_dirs()
 
 
 # get_loader
@@ -140,4 +154,11 @@ def get_loader(project_name):
   return Templates(project_name)
 
 
-# loader = get_loader('project_template')
+"""
+import template
+
+loader = template.get_loader('project_template')
+
+loader.render_project(overwrite=False)
+
+"""
