@@ -49,3 +49,6 @@ cli.add_group(project.group, name='project')
 
 from . import build
 cli.add_group(build.group, name='build')
+
+from . import create
+cli.add_group(create.group, name='create')

@@ -2,6 +2,7 @@
 
 import os
 import logging
+import shutil
 
 import jinja2
 
@@ -45,6 +46,11 @@ def _load_config(path, env=None):
   execfile(path, ret)
   del ret['__builtins__']
   return ret
+
+def copy_config(project_name, dest):
+  config_path = _get_config_path(project_name)
+  if not os.path.exists(dest):
+    shutil.copy(config_path, dest)
 
 
 # Default Template Library
@@ -150,8 +156,8 @@ class Templates(object):
 # ==========
 
 
-def get_loader(project_name):
-  return Templates(project_name)
+def get_loader(project_name, config_path=None, out_path=None):
+  return Templates(project_name, config_path, out_path)
 
 
 """
