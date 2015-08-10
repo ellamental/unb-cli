@@ -46,6 +46,9 @@ from . import main  # noqa
 from . import build
 cli.add_group(build.group, name='build')
 
+from . import deploy
+cli.add_group(deploy.group, name='deploy')
+
 from . import django_commands
 cli.add_group(django_commands.group, name='dj')
 

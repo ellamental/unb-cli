@@ -49,19 +49,6 @@ from . import cli
 from . import config
 
 
-def deploy():
-  """Deploy the project to various environments.
-
-  This assumes that a git remote named "heroku" exists and points to the
-  staging environment.
-  """
-  # Deploy to staging environment
-  subprocess.call(['git', 'push', 'heroku', 'master'])
-  subprocess.call(
-    ['heroku', 'run', './manage.py', 'migrate'])
-cli.register(deploy)
-
-
 def lint():
   """Run linters.
 
@@ -104,12 +91,6 @@ def install_requirements(verbose=False):
   # TODO(nick): Install npm dependencies per frontend project.
   #   $ npm install
 cli.register(install_requirements, name='install-requirements')
-
-
-def licenses():
-  """List licenses of all 3rd party packages."""
-  subprocess.call(['yolk', '-l', '-f', 'license'])
-cli.register(licenses)
 
 
 def get_version():

@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from lib.commands.commands import arg, Group
 
@@ -70,3 +71,9 @@ def project_path(project_name):
 def mkconfig():
   """Make the UNB CLI config directory structure."""
   myprojects.make_config_dir()
+
+
+@group.command()
+def licenses():
+  """List licenses of all 3rd party packages."""
+  subprocess.call(['yolk', '-l', '-f', 'license'])

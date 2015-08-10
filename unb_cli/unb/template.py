@@ -28,7 +28,7 @@ def new_template(name):
     print 'Error creating template.'
 
 
-@group.command(name='copy')
+@group.command(name='copy-config')
 @arg('name')
 @arg('dest', nargs='?')
 def copy_config(name, dest):

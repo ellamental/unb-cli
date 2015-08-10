@@ -50,6 +50,7 @@ def _template_path(name):
 
 
 def _config_path(template_path):
+  """Get the path of the config file stored at template_path."""
   config_path = os.path.join(template_path, CONFIG_FILENAME)
   if os.path.exists(config_path):
     return config_path
@@ -131,15 +132,13 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
       continue
     full_template_path = os.path.join(template_path, path)
     dest_path = os.path.join(dest, path)
-    if not os.path.isdir(full_template_path):
-      rendered = loader.get_template(path).render(env)
-      _write(rendered, dest_path, overwrite)
-    else:
-      subdir_config_path = _config_path(full_template_path)
-      if subdir_config_path:
-        config_path = subdir_config_path
+    if os.path.isdir(full_template_path):
+      os.makedirs(dest_path)
       _build_template(full_template_path, dest_path, config_path=config_path,
                       overwrite=overwrite)
+    else:
+      rendered = loader.get_template(path).render(env)
+      _write(rendered, dest_path, overwrite)
 
 
 def build_template(name, dest, config_path=None, overwrite=False):
