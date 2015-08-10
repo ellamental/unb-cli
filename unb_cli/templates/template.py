@@ -1,32 +1,3 @@
-"""
-import template
-
-loader = template.loader('project_template')
-
-loader.render_project(overwrite=False)
-
-
-
-from unb_cli import template
-
-
-unb new template name  #==> creates a new template at ~/.unb-cli/templates/name
-
-unb new py-project name
-#==> create name/ in current directory
-#==> copy py-project default config file (found where py-project registered)
-#==> cd to name/  (with switch to not cd for use in other commands)
-
-edit config
-
-unb create-project #optional path-to-config-file(default cwd)
-
-
-
-.unb-cli.d/templates/project-name/config.py
-
-"""
-
 import logging
 import os
 import shutil
