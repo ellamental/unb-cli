@@ -5,10 +5,6 @@ import os
 from unb_cli.config import cli as config_cli
 
 
-def _is_django_project(project_path):
-  return os.path.exists(os.path.join(project_path, 'manage.py'))
-
-
 def list_all():
   filenames = os.listdir(config_cli.PROJECTS_PATH)
   return [f[:-3] for f in filenames

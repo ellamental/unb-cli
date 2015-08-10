@@ -18,12 +18,6 @@ group = Group(
 Tools that help you work with your projects, store and access configuration and
 consolidate your tooling across projects.
 ''',
-  epilog='''Here's more information that's really only here for example.
-
-This epilog only shows up when you use the -h or --help options.  If you
-display help by running a sub-group with too few arguments, you will never see
-this!
-''',
 )
 
 
@@ -33,9 +27,8 @@ def project_list():
   projects = myprojects.list_all()
   projects.sort()
   if projects:
-    print 'Projects(%s):' % len(projects)
     for project_name in projects:
-      print '  - ', project_name
+      print project_name
   else:
     print 'No projects found.'
 

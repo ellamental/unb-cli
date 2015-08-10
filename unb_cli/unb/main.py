@@ -43,22 +43,11 @@ import subprocess
 from lib.commands.commands import arg
 
 from unb_cli import version
+import utilities
 
 from . import cli
 from . import config
 
-
-# Utilities
-# ---------
-
-def _in_project():
-  # TODO(nick): Should be something like:
-  # return '.git' in os.listdir(config.PROJECT_PATH)
-  return config.PROJECT_PATH != config.HOME_PATH
-
-
-# Commands
-# --------
 
 def deploy():
   """Deploy the project to various environments.
@@ -90,7 +79,7 @@ def lint():
 
   For more info: https://flake8.readthedocs.org/en/2.0/config.html
   """
-  if _in_project():
+  if utilities._in_project(config.PROJECT_PATH):
     subprocess.call(['flake8', config.PROJECT_PATH])
 cli.register(lint)
 
@@ -162,3 +151,13 @@ def conf(key):
     except KeyError:
       pass
 cli.register(conf, 'config')
+
+
+def shell():
+  """Run shell."""
+  if myprojects._is_django_project(config.PROJECT_PATH):
+    import django_commands
+    django_commands._execute_django_command('shell_plus')
+  else:
+    subprocess.call(['ipython'])
+cli.register(shell)

@@ -57,7 +57,7 @@ def wrap_block(text, indent=0):
       ret.append(wrap(paragraph, subsequent_indent=indent))
   return '\n\n'.join(ret)
 
+
 def pystr(s):
   """Output a string as an eval'able representation of a Python string."""
   return s.__repr__()
-

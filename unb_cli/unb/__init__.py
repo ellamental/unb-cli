@@ -40,15 +40,17 @@ cli = Group(cli_init)
 #   module is a self-contained group, that is then imported and registered
 #   here.
 from . import main  # noqa
-from . import django_commands  # noqa
 
 
 # Each module under this exports ``group`` which is added here.
-from . import project
-cli.add_group(project.group, name='project')
-
 from . import build
 cli.add_group(build.group, name='build')
 
-from . import create
-cli.add_group(create.group, name='create')
+from . import django_commands
+cli.add_group(django_commands.group, name='dj')
+
+from . import project
+cli.add_group(project.group, name='project')
+
+from . import template
+cli.add_group(template.group, name='template')

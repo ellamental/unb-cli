@@ -179,7 +179,6 @@ primary_mailing_list_subscription_url = None
 documentation_url = None
 
 
-
 # Virtual Environment
 # ===================
 
@@ -187,18 +186,6 @@ documentation_url = None
 # will add it to the .gitignore.  Setting it to `None` will not write anything
 # to the .gitignore.
 venv_dir = 'venv'
-
-
-
-
-
-
-
-
-
-
-
-# import pdb; pdb.set_trace()
 
 
 # Classifiers commonly used in UNB projects
