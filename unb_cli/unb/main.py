@@ -136,7 +136,7 @@ cli.register(conf, 'config')
 
 def shell():
   """Run shell."""
-  if myprojects._is_django_project(config.PROJECT_PATH):
+  if utilities.is_django_project(config.PROJECT_PATH):
     import django_commands
     django_commands._execute_django_command('shell_plus')
   else:

@@ -33,75 +33,12 @@ rerenderable = [
 # ===========================
 
 project_name = 'something-cool'
-python_name = 'something_cool'
+app_name = 'something_cool'
 verbose_name = 'Something Cool'
 
 project_description = 'A cool project description.  Can be long.'
 
 version = '0.0.1'
-
-
-# Additional Directories
-# ======================
-
-
-# Additional directories to create for this project.  All standard directories
-# (that a tool like ``unb-cli`` would expect) are provided below.  However,
-# since not every project will make use of them, only the common ones are
-# uncommented.
-#
-# There's no need to let this tool create these directories.  You may create
-# them manually as well.  Additionally, most tools (like ``unb-cli``) should be
-# configurable for how your individual project is setup.
-create_directories = [
-  # Every project should have a sub-directory of the same name as the Python
-  # package that represents the project.  The contents of this directory will
-  # be shipped as the final product, either in source form, as package files
-  # or some binary.  This is done to keep meta-information out of the end
-  # user's package, which makes it smaller and more efficient to transfer and
-  # store.
-  #
-  # There's very little reason to skip this directory, or name it something
-  # other than the name of your Python package.  However, should you really
-  # need to do this, you can configure it here.
-
-  python_name,
-
-  # Almost every project will have a docs directory.  Your project's
-  # documentation goes here, whether you create that documentation by hand
-  # (maybe as markdown files) or you utilize a tool like Sphinx.
-  #
-  # There may be additional directory structure that will be expected by
-  # documentation tools.  Since this isn't standard, we won't add it.
-
-  'docs',
-
-  # Project-specific external libraries.  Maybe these have been forked, or are
-  # just really small and should be included, or are in staging to be removed
-  # from the app... Whatever the reason, lib is for them.
-  #
-  # Generally you will use your build tool to manage packaging this with your
-  # app if necessary, though you could also simply move this directory into
-  # your app directory.
-
-  # 'lib',
-
-  # Project scripts.  These could do anything.  They usually will act on the
-  # project in some way (maybe even regularly via cron or something) but
-  # they're not really a part of the app.  An example might be scripts to
-  # reset a database, or perform other maintenence tasks.
-  # Could also make a ``unb scripts script_name`` command that will run these
-  # scripts...?
-
-  # 'scripts',
-
-  # Maybe this goes in scripts/build instead?
-  # Scripts, utilities or assets needed to build the project.
-  # The ``unb build`` command could accept these script names as an argument
-  # and run them ``unb build script_name.sh``?
-
-  # 'build',
-]
 
 
 # Author Information
