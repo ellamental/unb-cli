@@ -106,6 +106,20 @@ def lint():
 cli.register(lint)
 
 
+def prettify(src, dest):
+  """Prettify html."""
+  # TODO(nick): pip install beautifulsoup4
+  if os.path.exists(dest):
+    answer = raw_input('Overwrite file %s? (y/n)' % dest)
+    if answer != 'y':
+      print 'Operation canceled.'
+      return
+  from bs4 import BeautifulSoup
+  soup = BeautifulSoup(open(src))
+  with open(dest, 'w') as f:
+    f.write(soup.prettify(formatter="html"))
+
+
 import project
 cli.add_group(project.group, name='project')
 
