@@ -4,13 +4,13 @@ import shutil
 
 import jinja2
 
-from unb_cli.config import cli
+from unb_cli import project
 
 
 logger = logging.getLogger(__name__)
 
 
-TEMPLATES_PATH = os.path.join(cli.UNB_CLI_D_PATH, 'templates')
+TEMPLATES_PATH = os.path.join(project.UNB_CLI_D_PATH, 'templates')
 CONFIG_FILENAME = '__config__.py'
 
 
@@ -32,6 +32,14 @@ def _loader(path):
     loader=jinja2.FileSystemLoader(path),
     keep_trailing_newline=True,
     autoescape=False,
+    block_start_string='{%%',
+    block_end_string='%%}',
+    variable_start_string='{[',
+    variable_end_string=']}',
+    comment_start_string='{##',
+    comment_end_string='##}',
+    line_statement_prefix='$$',
+    line_comment_prefix='@@',
   )
 
 
@@ -80,9 +88,7 @@ def copy_config(template_name, dest):
     return dest
 
 
-def _build_template(template_path, dest, config_path=None, overwrite=False,
-                    no_render=False):
-  logger.warning('Building template')
+def _build_template(template_path, dest, config_path=None, overwrite=False):
   import markup
   from library import wrap, wrap_block, pystr
 
@@ -101,7 +107,6 @@ def _build_template(template_path, dest, config_path=None, overwrite=False,
 
   paths = os.listdir(template_path)
   for path in paths:
-    logger.warning('Building path: %s', path)
     if path == CONFIG_FILENAME:
       continue
 
@@ -112,6 +117,8 @@ def _build_template(template_path, dest, config_path=None, overwrite=False,
     # users to build paths that contain config variables.  A common one is to
     # create a subdirectory named `app_name`.  This way the user can automate
     # the naming of directories by naming it `parent/{{app_name}}/`.
+    # BUG: This breaks on filenames with tags, since it's not setting the
+    #   start/end tags.
     path = jinja2.Template(path).render(env)
     dest_path = os.path.join(dest, path)
 
@@ -122,27 +129,11 @@ def _build_template(template_path, dest, config_path=None, overwrite=False,
         os.makedirs(dest_path)
       except OSError:
         pass
-      if path == 'templates':
-        # Django projects may contain templates that are meant to be rendered
-        # by Django, NOT by this project builder.  By convention they're stored
-        # in a directory named "templates".  This is a pretty horrible way of
-        # checking if something is a template that shouldn't be rendered.
-        # Another option might be to make this a config value... ignored_dirs
-        # or something?
-        # Here we just set a flag `no_render` that instructs future iterations
-        # of this function not to try to render any file in this directory or
-        # it's subdirectories.
-        _build_template(source_path, dest_path, config_path=config_path,
-                        overwrite=overwrite, no_render=True)
-      else:
-        _build_template(source_path, dest_path, config_path=config_path,
-                        overwrite=overwrite, no_render=no_render)
+      _build_template(source_path, dest_path, config_path=config_path,
+                      overwrite=overwrite)
     else:
-      if no_render:
-        shutil.copy(source_path, dest_path)
-      else:
-        rendered = loader.get_template(path).render(env)
-        _write(rendered, dest_path, overwrite)
+      rendered = loader.get_template(path).render(env)
+      _write(rendered, dest_path, overwrite)
 
 
 def build_template(name, dest, config_path=None, overwrite=False):

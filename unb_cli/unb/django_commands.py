@@ -71,6 +71,7 @@ def m(name, args):
 @_django_command
 def runserver():
   """Run the development server and restart on crash."""
+  os.chdir(config.PROJECT_PATH)
   try:
     subprocess.call('\n'.join(['while true; do',
                                '  # re-start service',

@@ -72,10 +72,14 @@ def config_path(name):
 
 
 @group.command(name='config')
-@arg('name')
+@arg('name', nargs='?')
 def project_config(name):
   """Return the project configuration as a json object."""
-  for key, value in project.config_dict(project.config_path(name)).items():
+  if not name:
+    project_path = project.find_parent_project_path(os.getcwd())
+    name = project.get_project_name_from_path(project_path)
+  path = project.config_path(name)
+  for key, value in project.config(path).items():
     print key, ':', value
 
 
@@ -86,7 +90,7 @@ def copy_default_config(dest):
   project.copy_default_config(dest)
 
 
-@group.command(name='config')
+@group.command(name='conf')
 @arg('key', nargs='?')
 def conf(key):
   """Access config settings (mostly a debugging tool)."""
