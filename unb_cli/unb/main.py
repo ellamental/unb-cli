@@ -120,20 +120,6 @@ def update_remote(app_name):
 cli.register(update_remote, name='update-remote')
 
 
-@arg('key', nargs='?')
-def conf(key):
-  """Access config settings (mostly a debugging tool)."""
-  if not key:
-    from unb_cli import random_tools
-    random_tools.pp(config)
-  else:
-    try:
-      print "%s: %s" % (key, config[key])
-    except KeyError:
-      pass
-cli.register(conf, 'config')
-
-
 def shell():
   """Run shell."""
   if utilities.is_django_project(config.PROJECT_PATH):

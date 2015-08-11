@@ -45,3 +45,5 @@ def build_template(name):
   """Build a template from a config file (in the current directory)."""
   from unb_cli.templates import build_template
   build_template(name, os.getcwd())
+# TODO(nick): Add an option to create a new UNB project config at
+#   `~/.unb-cli.d/projects/name`.

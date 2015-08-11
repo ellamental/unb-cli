@@ -3,10 +3,13 @@ import sys
 
 from lib.commands.commands import Group
 
-from unb_cli.config.utils import get_current_config
+from unb_cli import project
 
 
-config = get_current_config()
+project_path = project.find_parent_project_path(os.getcwd())
+project_name = project.get_project_name_from_path(project_path)
+config_path = project.config_path(project_name)
+config = project.config(config_path)
 
 
 def _is_django_project():
@@ -52,7 +55,7 @@ cli.add_group(deploy.group, name='deploy')
 from . import django_commands
 cli.add_group(django_commands.group, name='dj')
 
-from . import project
+import project
 cli.add_group(project.group, name='project')
 
 from . import template

@@ -7,10 +7,8 @@ import sys
 import argparse
 from lib.commands.commands import arg, Group
 
-from unb_cli import myprojects
 import utilities
 
-from . import cli
 from . import config
 
 
