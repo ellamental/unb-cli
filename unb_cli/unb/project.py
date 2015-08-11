@@ -22,28 +22,6 @@ consolidate your tooling across projects.
 from unb_cli import project
 
 
-@group.command(name='config-path')
-@arg('name')
-def config_path(name):
-  """Get the full path to the project config file given a project name."""
-  print project.config_path(name)
-
-
-@group.command(name='config')
-@arg('name')
-def project_config(name):
-  """Return the project configuration as a json object."""
-  for key, value in project.config_dict(project.config_path(name)).items():
-    print key, ':', value
-
-
-@group.command(name='copy-default-config')
-@arg('dest')
-def copy_default_config(dest):
-  """Copy the default project config to dest."""
-  project.copy_default_config(dest)
-
-
 @group.command(name='new')
 @arg('name')
 def new(name):
@@ -78,7 +56,7 @@ def project_current():
 @group.command(name='path')
 @arg('project_name', nargs='?', default=None)
 def project_path(project_name):
-  """Return the PROJECT_ROOT config value (optionally for a project_name)."""
+  """Return the PROJECT_PATH (optionally for a project_name or (sub)path)."""
   if project_name is None:
     project_path = config.PROJECT_PATH
   else:
@@ -86,28 +64,26 @@ def project_path(project_name):
   print project_path
 
 
-@group.command(name='venv-activate-path')
-@arg('project_name', nargs='?', default=None)
-def project_venv_activate_path(project_name):
-  """Return a path to the project's venv/bin/activate script."""
-  if project_name is None:
-    path = config.PROJECT_PATH
-  else:
-    path = project.project_path(project_name)
-  activate_path = os.path.join(path, 'venv', 'bin', 'activate')
-  print activate_path
+@group.command(name='config-path')
+@arg('name')
+def config_path(name):
+  """Get the full path to the project config file given a project name."""
+  print project.config_path(name)
 
 
-@group.command()
-def mkconfig():
-  """Make the UNB CLI config directory structure."""
-  project.make_config_dir()
+@group.command(name='config')
+@arg('name')
+def project_config(name):
+  """Return the project configuration as a json object."""
+  for key, value in project.config_dict(project.config_path(name)).items():
+    print key, ':', value
 
 
-@group.command()
-def licenses():
-  """List licenses of all 3rd party packages."""
-  subprocess.call(['yolk', '-l', '-f', 'license'])
+@group.command(name='copy-default-config')
+@arg('dest')
+def copy_default_config(dest):
+  """Copy the default project config to dest."""
+  project.copy_default_config(dest)
 
 
 @group.command(name='config')
@@ -123,3 +99,27 @@ def conf(key):
       print "%s: %s" % (key, config[key])
     except KeyError:
       pass
+
+
+@group.command()
+def mkconfig():
+  """Make the UNB CLI config directory structure."""
+  project.make_config_dir()
+
+
+@group.command(name='venv-activate-path')
+@arg('project_name', nargs='?', default=None)
+def project_venv_activate_path(project_name):
+  """Return a path to the project's venv/bin/activate script."""
+  if project_name is None:
+    path = config.PROJECT_PATH
+  else:
+    path = project.project_path(project_name)
+  activate_path = os.path.join(path, 'venv', 'bin', 'activate')
+  print activate_path
+
+
+@group.command()
+def licenses():
+  """List licenses of all 3rd party packages."""
+  subprocess.call(['yolk', '-l', '-f', 'license'])
