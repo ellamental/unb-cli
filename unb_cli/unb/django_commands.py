@@ -81,7 +81,7 @@ def runserver():
                                'done']),
                     shell=True)
   except KeyboardInterrupt:
-    pass
+    sys.exit()
 
 
 @group.command()
