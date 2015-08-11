@@ -71,17 +71,17 @@ def m(name, args):
 @_django_command
 def runserver():
   """Run the development server and restart on crash."""
+  import traceback
+  import time
   os.chdir(config.PROJECT_PATH)
-  try:
-    subprocess.call('\n'.join(['while true; do',
-                               '  # re-start service',
-                               '  echo "Starting Django Server"',
-                               '  python manage.py runserver',
-                               '  sleep 2',
-                               'done']),
-                    shell=True)
-  except KeyboardInterrupt:
-    sys.exit()
+  while True:
+    try:
+      # runserver does a sys.exit() on C-c so we don't have to special-case it
+      _execute_django_command('runserver')
+    except Exception:
+      print traceback.format_exc()
+    time.sleep(2)
+  sys.exit()
 
 
 @group.command()

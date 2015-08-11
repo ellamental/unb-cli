@@ -34,8 +34,8 @@ def _loader(path):
     autoescape=False,
     block_start_string='{%%',
     block_end_string='%%}',
-    variable_start_string='{[',
-    variable_end_string=']}',
+    variable_start_string='{{{{',
+    variable_end_string='}}}}',
     comment_start_string='{##',
     comment_end_string='##}',
     line_statement_prefix='$$',
@@ -119,7 +119,7 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
     # the naming of directories by naming it `parent/{{app_name}}/`.
     # BUG: This breaks on filenames with tags, since it's not setting the
     #   start/end tags.
-    path = jinja2.Template(path).render(env)
+    path = loader.from_string(path).render(env)
     dest_path = os.path.join(dest, path)
 
     # If this path is a directory, recursively build the template given the
