@@ -34,6 +34,51 @@ class Config(dict):
     return super(Config, self).__getitem__(name)
 
 
+class Project(object):
+  """A unb-cli project and its configuration.
+
+  Examples:
+
+    # Get a project by its name.  The project name's "unb-" prefix, if
+    # applicable, may be omitted.
+    project = Project.get(name)
+
+    # Get a project from a path.  The path may be the project's root, or any
+    # subdirectory of the project root.
+    project = Project.get(path)
+
+    # Get the root path for the project.
+    project.path
+
+    # Get the (loaded) configuration instance for the project.
+    project.config
+
+    # Get the path to the project's config file.
+    project.config_path
+
+  """
+  def __init__(self, name_or_path):
+    self.config = config(name_or_path)
+
+  @classmethod
+  def get(cls, project_name_or_path):
+    pass
+    # # NOTE: This doesn't do what it should
+    # if os.path.exists(project_name_or_path):
+    #   return find_parent_project_path(project_name_or_path)
+    # else:
+    #   path = config_path(project_name_or_path)
+    #   if path:
+    #     return config(path).get('PROJECT_PATH')
+
+  @classmethod
+  def list(cls):
+    filenames = os.listdir(PROJECTS_PATH)
+    # Get the project names by stripping the .py from the file name.
+    project_names = [f[:-3] for f in filenames
+                     if f.endswith('.py') and not f.startswith('__')]
+    return project_names
+
 # Project Configuration Loading and Copying
 # =========================================
 
@@ -89,6 +134,29 @@ def copy_default_config(dest):
 # Project Management Functions
 # ============================
 
+def project_name_from_path(path):
+  """If path is in a project, return the project path, otherwise return "".
+
+  Note: This may not be a valid unb-cli project!  It will return the base path
+    of any git project.
+  """
+  while True:
+    if os.path.exists(os.path.join(path, '.git')):
+      return path
+    if not path or path == ROOT_PATH:
+      return None
+    path = os.path.dirname(path)
+
+
+def project_path_from_name(name):
+  """Return a project path given a project name.
+
+  Name is allowed to omit the "unb-" portion of a project name.
+  """
+  project_config = config(config_path(name))
+  return project_config.get('PROJECT_PATH', '')
+
+
 def new(name):
   pass
 
@@ -100,12 +168,13 @@ def list_projects():
 
 
 def project_path(project_name_or_path):
-  if os.path.exists(project_name_or_path):
-    return find_parent_project_path(project_name_or_path)
-  else:
-    path = config_path(project_name_or_path)
-    if path:
-      return config(path).get('PROJECT_PATH')
+  # Try to get the config file first, if that fails, 
+  conf_path = config_path(project_name_or_path)
+  if conf_path:
+    conf = config(conf_path)
+    if conf:
+      return conf.get('PROJECT_PATH')
+  return find_parent_project_path(project_name_or_path)
 
 
 def find_parent_project_path(path):
@@ -114,12 +183,13 @@ def find_parent_project_path(path):
   Note: This may not be a valid unb-cli project!  It will return the base path
     of any git project.
   """
-  while True:
-    if os.path.exists(os.path.join(path, '.git')):
-      return path
-    if not path or path == ROOT_PATH:
-      return None
-    path = os.path.dirname(path)
+  if os.path.exists(path):
+    while True:
+      if os.path.exists(os.path.join(path, '.git')):
+        return path
+      if not path or path == ROOT_PATH:
+        return None
+      path = os.path.dirname(path)
 
 
 def get_project_name_from_path(project_path):

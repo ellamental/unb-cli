@@ -157,3 +157,16 @@ def get_version():
   if v is not None:
     print v
 cli.register(get_version, name='version')
+
+
+def install():
+  """Print the command to pip install unb-cli from source."""
+  # TODO(nick): This is pretty fragile.  If the user names this project
+  #   anything else, this command breaks.
+  path = project_lib.project_path('unb-cli')
+  if path:
+    subprocess.call(['pip', 'install', '-e', path])
+  else:
+    print 'cd unb-cli-directory'
+    print 'pip install -e .'
+cli.register(install)
