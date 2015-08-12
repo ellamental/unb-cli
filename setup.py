@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 if __name__ == '__main__':
   setup(
     name='unb-cli',
-    version='0.0.4',
+    version='0.0.5',
     description='Command line utilities for UNB project development.',
     author='Nick Zarczynski',
     author_email='nick@unb.services',
