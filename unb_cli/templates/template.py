@@ -117,10 +117,8 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
     # users to build paths that contain config variables.  A common one is to
     # create a subdirectory named `app_name`.  This way the user can automate
     # the naming of directories by naming it `parent/{{app_name}}/`.
-    # BUG: This breaks on filenames with tags, since it's not setting the
-    #   start/end tags.
-    path = loader.from_string(path).render(env)
-    dest_path = os.path.join(dest, path)
+    rendered_path = loader.from_string(path).render(env)
+    dest_path = os.path.join(dest, rendered_path)
 
     # If this path is a directory, recursively build the template given the
     # initial config file as the rendering environment.
@@ -138,4 +136,9 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
 
 def build_template(name, dest, config_path=None, overwrite=False):
   template_path = _template_path(name)
+  # TODO(nick): Allow the user to define two functions in the __config__.py
+  #   file: before_render and after_render that each take 1 argument (the
+  #   config) and are called before and after the build.
+  #   This allows the user to do things like add a symlink, that otherwise
+  #   would not be copy-able.
   _build_template(template_path, dest, config_path, overwrite)
