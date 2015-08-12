@@ -119,8 +119,9 @@ def project_venv_activate_path(project_name):
     path = config.PROJECT_PATH
   else:
     path = project.project_path(project_name)
-  activate_path = os.path.join(path, 'venv', 'bin', 'activate')
-  print activate_path
+  activate_path = project.venv_activate_path(path)
+  if activate_path:
+    print activate_path
 
 
 @group.command()

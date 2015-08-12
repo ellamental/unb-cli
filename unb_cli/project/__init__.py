@@ -135,6 +135,20 @@ def get_project_name_from_path(project_path):
   return ''
 
 
+def venv_path(project_path):
+  """Given a project path, return the path to the venv for that project."""
+  if project_path:
+    return os.path.join(project_path, 'venv')
+
+
+def venv_activate_path(project_path):
+  """Given a project path, return the path to the activate script."""
+  project_venv_path = venv_path(project_path)
+  activate_path = os.path.join(project_venv_path, 'bin', 'activate')
+  if os.path.exists(activate_path):
+    return activate_path
+
+
 # UNB-CLI Configuration Initialization
 # ====================================
 

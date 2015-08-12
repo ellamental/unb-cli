@@ -37,7 +37,9 @@ function unb () {
         # Should check if we need to (de)activate.
         unb-deactivate-virtualenv
         activate_path="$(unb-cli project venv-activate-path $project_name)"
-        source $activate_path
+        if [ -n "$activate_path" ]; then
+           source $activate_path
+        fi
         echo "Go go go!"
     else
         # Delegate to the python unb-cli
