@@ -21,7 +21,8 @@ def is_django_project(project_path):
 
 def activate_virtualenv(path):
   activate_this = os.path.join(path, 'venv', 'bin', 'activate_this.py')
-  execfile(activate_this, dict(__file__=activate_this))
+  if os.path.exists(activate_this):
+    execfile(activate_this, dict(__file__=activate_this))
 
 
 # Utilities
