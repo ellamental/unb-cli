@@ -117,7 +117,9 @@ def config_path(project_name):
   project_names = os.listdir(projects_path)
   for name in project_names:
     stripped = name.rstrip('.py')
-    if project_name == stripped or project_name == stripped.lstrip('unb-'):
+    unb_stripped = stripped.lstrip('unb-')
+    if (stripped.startswith(project_name) or
+        unb_stripped.startswith(project_name)):
       return os.path.join(projects_path, name)
 
 
