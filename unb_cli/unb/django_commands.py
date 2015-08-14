@@ -74,7 +74,7 @@ def runserver():
   """Run the development server and restart on crash."""
   import traceback
   import time
-  os.chdir(current_project().PROJECT_PATH)
+  os.chdir(current_project().path)
   while True:
     try:
       # runserver does a sys.exit() on C-c so we don't have to special-case it
