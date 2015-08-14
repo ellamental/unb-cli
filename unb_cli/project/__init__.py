@@ -34,6 +34,71 @@ class Config(dict):
     return super(Config, self).__getitem__(name)
 
 
+def _clean_config(d):
+  return {k: v for k, v in d.items() if k.isupper() and not k.startswith('_')}
+
+
+def _default_config_path():
+  return os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                      'default_config.py')
+
+
+def _load_config(path=None, defaults=None):
+  """Load the config at path, or the default config if path is not supplied."""
+  if defaults is None:
+    ret = _load_config(_default_config_path(), defaults={})
+  else:
+    ret = defaults
+  if not path:
+    # Return the default config only for projects without a config file.
+    return Config(**_clean_config(ret))
+  execfile(path, ret)
+  return Config(**_clean_config(ret))
+
+
+def _get_project_name_from_project_path(path):
+  """Get a project name from a project path.
+
+  Note: This does not check that we're in a valid project."""
+  return os.path.split(path)[-1]
+
+
+def _get_config_path_from_project_name(name):
+  """Return the path to the config file for project[name] or None."""
+  path = os.path.join(PROJECTS_PATH, name + '.py')
+  if os.path.exists(path):
+    return path
+  return None
+
+
+def _get_fuzzy_name(names, fuzzy_name):
+  """Return the full project name that matches the fuzzy_name.
+
+  Note: There may be multiple matches for fuzzy_name.  Currently this
+  implementation will simply match the first occurance.  That is probably a
+  bug, but until this is used more I'm not sure what it should do.
+
+  Example:
+
+      >>> names = ['my-project', 'unb-cli', 'unb-platform']
+      # Project name starts with fuzzy_name
+      >>> _get_fuzzy_name(names, 'm')
+      'my-project'
+      # Project name starts with fuzzy_name if "unb-" prefix is stripped
+      >>> _get_fuzzy_name(names, 'plat')
+      'unb-platform'
+      # Multiple matches returns the first match
+      # This behavior should not be relied upon!
+      >>> _get_fuzzy_name(names, 'unb')
+      'unb-cli'
+  """
+  for name in names:
+    if (name.startswith(fuzzy_name) or
+        name.lstrip('unb-').startswith(fuzzy_name)):  # noqa
+      return name
+  return None
+
+
 class Project(object):
   """A unb-cli project and its configuration.
 
@@ -57,53 +122,78 @@ class Project(object):
     project.config_path
 
   """
-  def __init__(self, name_or_path):
-    self.config = config(name_or_path)
 
-  @classmethod
-  def get(cls, project_name_or_path):
-    pass
-    # # NOTE: This doesn't do what it should
-    # if os.path.exists(project_name_or_path):
-    #   return find_parent_project_path(project_name_or_path)
-    # else:
-    #   path = config_path(project_name_or_path)
-    #   if path:
-    #     return config(path).get('PROJECT_PATH')
+  # TODO(nick): The anon stuff is a hack.  We should really set anon based on
+  #   if we find a project from the given name/path, instead of doing it in the
+  #   classmethods.
+  def __init__(self, name=None, path=None, anon=False):
+    if name:
+      self.config_path = _get_config_path_from_project_name(name)
+    elif path:
+      name = _get_project_name_from_project_path(path)
+      self._path = path
+      self.config_path = _get_config_path_from_project_name(name)
+    self.anon = anon
+    if anon:
+      self.name = ""
+    else:
+      self.name = name
+
+  def __repr__(self):
+    return 'Project(name="' + str(self.name) + '", path="' + self.path + '")'
+
+  @property
+  def config(self):
+    if hasattr(self, '_config'):
+      return self._config
+    self._config = _load_config(self.config_path)
+    return self._config
+
+  @property
+  def path(self):
+    if hasattr(self, '_path'):
+      return self._path
+    self._path = self.config.get('PROJECT_PATH')
+    return self._path
 
   @classmethod
   def list(cls):
+    """List all projects with config files in ~/.unb-cli.d/projects/."""
     filenames = os.listdir(PROJECTS_PATH)
-    # Get the project names by stripping the .py from the file name.
-    project_names = [f[:-3] for f in filenames
-                     if f.endswith('.py') and not f.startswith('__')]
-    return project_names
+    return [f[:-3] for f in filenames if f.endswith('.py')]
+
+  @classmethod
+  def get(cls, name_or_path):
+    if os.path.sep in name_or_path:
+      return cls.get_from_path(name_or_path)
+    return cls.get_from_name(name_or_path)
+
+  @classmethod
+  def get_from_name(cls, name):
+    project_names = cls.list()
+    name = _get_fuzzy_name(project_names, name)
+    if name:
+      return cls(name=name)
+
+  @classmethod
+  def get_from_path(cls, path):
+    """Get an existing project or create and return an anonymous project.
+
+    This method will *always* return a project.  If the path is not in an
+    existing project, a temporary, anonymous project will be created and
+    returned.
+    """
+    start_path = path
+    while True:
+      if os.path.exists(os.path.join(path, '.git')):
+        return cls(path=path)
+      if not path or path == ROOT_PATH:
+        return cls(path=start_path, anon=True)
+      path = os.path.dirname(path)
+
 
 # Project Configuration Loading and Copying
 # =========================================
-
-def _clean_config(d):
-  return {k: v for k, v in d.items() if k.isupper() and not k.startswith('_')}
-
-
-def _default_config_path():
-  return os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                      'default_config.py')
-
-def _default_config():
-  return _load_config(_default_config_path(), defaults={})
-
-
-def _load_config(path, defaults=None):
-  if defaults is None:
-    ret = _default_config()
-  else:
-    ret = defaults
-  if not path:
-    return Config(**_clean_config(ret))
-  execfile(path, ret)
-  return Config(**_clean_config(ret))
-
 
 def make_config_path(project_name):
   if not project_name.endswith('.py'):
@@ -119,7 +209,7 @@ def config_path(project_name):
     stripped = name.rstrip('.py')
     unb_stripped = stripped.lstrip('unb-')
     if (stripped.startswith(project_name) or
-        unb_stripped.startswith(project_name)):
+        unb_stripped.startswith(project_name)):  # noqa
       return os.path.join(projects_path, name)
 # TODO(nick): This gets tripped up when emacs temp files are written to the
 #   project directory.
@@ -172,7 +262,6 @@ def list_projects():
 
 
 def project_path(project_name_or_path):
-  # Try to get the config file first, if that fails, 
   conf_path = config_path(project_name_or_path)
   if conf_path:
     conf = config(conf_path)

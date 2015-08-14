@@ -4,7 +4,7 @@ import subprocess
 
 from lib.commands.commands import arg, Group
 
-from . import config
+from . import current_project
 
 
 group = Group(
@@ -17,12 +17,13 @@ group = Group(
 @arg('component', nargs='?')
 def sphinx_docs(component=None):
   """Build Sphinx docs for a project."""
+  cp = current_project()
   starting_directory = os.getcwd()  # get current directory
   try:
-    os.chdir(config.DOCS_PATH)
+    os.chdir(cp.config.DOCS_PATH)
     print 'Cleaning build directory... '
     try:
-      shutil.rmtree(config.DOCS_BUILD_PATH)
+      shutil.rmtree(cp.config.DOCS_BUILD_PATH)
     except OSError:
       # Catches the error when there is no build directory... This is not
       # foolproof.  For example it could also catch permissions errors.
@@ -38,6 +39,7 @@ def sphinx_docs(component=None):
 @arg('component', nargs='?')
 def sphinx_api_docs(component=None):
   """Build Sphinx docs for a project."""
+  cp = current_project()
   # sphinx-apidoc: Build .rst docs from docstrings for all project modules.
   subprocess.call([
     'sphinx-apidoc',
@@ -46,8 +48,8 @@ def sphinx_api_docs(component=None):
     # '--no-headings',   # Don't create headings
     '--separate',      # Create separate pages for each module
     '--output-dir',
-    config.DOCS_MODULES_PATH,
-    config.PROJECT_PATH,       # Directory containing modules to document.
+    cp.config.DOCS_MODULES_PATH,
+    cp.path,           # Directory containing modules to document.
     # exclude directories
     'management/setup',
     'setup.py',

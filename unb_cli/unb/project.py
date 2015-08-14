@@ -1,9 +1,8 @@
-import os
 import subprocess
 
 from lib.commands.commands import arg, Group
 
-from . import config
+from . import current_project
 
 
 # Projects
@@ -20,6 +19,7 @@ consolidate your tooling across projects.
 
 
 from unb_cli import project
+from unb_cli.project import Project
 
 
 @group.command(name='new')
@@ -36,9 +36,9 @@ def new(name):
 @group.command(name='list')
 def project_list():
   """List projects configured to use UNB CLI."""
-  projects = project.list_projects()
-  projects.sort()
+  projects = Project.list()
   if projects:
+    projects.sort()
     for project_name in projects:
       print project_name
   else:
@@ -48,39 +48,42 @@ def project_list():
 @group.command(name='current')
 def project_current():
   """Get the project the current working directory is in."""
-  project_path = project.find_parent_project_path(os.getcwd())
-  if project_path:
-    print project.get_project_name_from_path(project_path)
+  project = current_project()
+  if project:
+    print project.name
 
 
 @group.command(name='path')
-@arg('project_name', nargs='?', default=None)
-def project_path(project_name):
+@arg('name', nargs='?', default=None)
+def project_path(name):
   """Return the PROJECT_PATH (optionally for a project_name or (sub)path)."""
-  if project_name is None:
-    project_path = config.PROJECT_PATH
+  if name is None:
+    project = current_project()
   else:
-    project_path = project.project_path(project_name)
-  print project_path
+    project = Project.get(name)
+  if project:
+    print project.path
 
 
 @group.command(name='config-path')
 @arg('name')
 def config_path(name):
   """Get the full path to the project config file given a project name."""
-  print project.config_path(name)
+  project = Project.get(name)
+  if project:
+    print project.config_path
 
 
 @group.command(name='config')
 @arg('name', nargs='?')
 def project_config(name):
-  """Return the project configuration as a json object."""
+  """Print the project configuration as (key: value)."""
   if not name:
-    project_path = project.find_parent_project_path(os.getcwd())
-    name = project.get_project_name_from_path(project_path)
-  path = project.config_path(name)
-  for key, value in project.config(path).items():
-    print key, ':', value
+    project = current_project()
+  else:
+    project = Project.get(name)
+  for key, value in project.config.items():
+    print key + ':', value
 
 
 @group.command(name='copy-default-config')
@@ -94,13 +97,14 @@ def copy_default_config(dest):
 @arg('key', nargs='?')
 def conf(key):
   """Access config settings (mostly a debugging tool)."""
+  project = current_project()
   if not key:
     from unb_cli import random_tools
-    random_tools.pp(config)
+    random_tools.pp(project.config)
   else:
     key = key.upper()
     try:
-      print "%s: %s" % (key, config[key])
+      print "%s: %s" % (key, project.config[key])
     except KeyError:
       pass
 
@@ -116,10 +120,10 @@ def mkconfig():
 def project_venv_activate_path(project_name):
   """Return a path to the project's venv/bin/activate script."""
   if project_name is None:
-    path = config.PROJECT_PATH
+    p = current_project()
   else:
-    path = project.project_path(project_name)
-  activate_path = project.venv_activate_path(path)
+    p = Project.get(project_name)
+  activate_path = project.venv_activate_path(p.path)
   if activate_path:
     print activate_path
 

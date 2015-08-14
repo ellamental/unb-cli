@@ -1,6 +1,6 @@
-import os
+import subprocess
 
-from lib.commands.commands import arg, Group
+from lib.commands.commands import Group
 
 
 group = Group(

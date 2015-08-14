@@ -4,18 +4,16 @@ import sys
 
 from lib.commands.commands import arg, Group
 
-from unb_cli import project as project_lib
+from unb_cli.project import Project
 
 
-project_path = project_lib.find_parent_project_path(os.getcwd())
-project_name = project_lib.get_project_name_from_path(project_path)
-config_path = project_lib.config_path(project_name)
-config = project_lib.config(config_path)
+def current_project():
+  return Project.get_from_path(os.getcwd())
 
 
 def _is_django_project():
   """A, not totally reliable, test if we're in a Django project."""
-  managepy_path = os.path.join(config.PROJECT_PATH, 'manage.py')
+  managepy_path = os.path.join(current_project().path, 'manage.py')
   if os.path.exists(managepy_path):
     return True
   return False
@@ -23,18 +21,17 @@ def _is_django_project():
 
 def cli_init():
   """Project management utilities."""
-  project_path = config.get('PROJECT_PATH', config.HOME_PATH)
-
-  if project_path != config.HOME_PATH:
+  cp = current_project()
+  if cp.path:
     # Add the project path to sys.path for all utilities.
-    if config.PROJECT_PATH not in sys.path:
-      sys.path.append(config.PROJECT_PATH)
+    if cp.path not in sys.path:
+      sys.path.append(cp.path)
 
   if _is_django_project():
     # Set the default settings module.
     os.environ.setdefault(
       'DJANGO_SETTINGS_MODULE',
-      config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
+      cp.config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
 
 
 cli = Group(cli_init)
@@ -49,7 +46,7 @@ cli.add_group(build.group, name='build')
 def bump(part):
   """Bump the version number."""
   from unb_cli import version
-  version.bump_file(config.VERSION_FILE_PATH, part, '0.0.0')
+  version.bump_file(current_project().config.VERSION_FILE_PATH, part, '0.0.0')
 cli.register(bump)
 
 
@@ -76,8 +73,9 @@ def install_requirements(verbose=False):
     return command
 
   print 'Installing project dependencies...'
-  subprocess.call(cmd(config.REQUIREMENTS_FILE_PATH))
-  subprocess.call(cmd(config.DEV_REQUIREMENTS_FILE_PATH))
+  cp = current_project()
+  subprocess.call(cmd(cp.config.REQUIREMENTS_FILE_PATH))
+  subprocess.call(cmd(cp.config.DEV_REQUIREMENTS_FILE_PATH))
   # TODO(nick): Install npm dependencies per frontend project.
   #   $ npm install
 cli.register(install_requirements, name='install-requirements')
@@ -100,9 +98,9 @@ def lint():
 
   For more info: https://flake8.readthedocs.org/en/2.0/config.html
   """
-  project_path = project_lib.find_parent_project_path(os.getcwd())
-  if project_path:
-    subprocess.call(['flake8', project_path])
+  path = current_project().path
+  if path:
+    subprocess.call(['flake8', path])
 cli.register(lint)
 
 
@@ -126,7 +124,8 @@ cli.add_group(project.group, name='project')
 
 def shell():
   """Run shell."""
-  if utilities.is_django_project(config.PROJECT_PATH):
+  import utilities
+  if utilities.is_django_project(current_project().path):
     import django_commands
     django_commands._execute_django_command('shell_plus')
   else:
@@ -153,7 +152,7 @@ cli.register(update_remote, name='update-remote')
 def get_version():
   """Get the version number of the current project."""
   from unb_cli import version
-  v = version.read(config.VERSION_FILE_PATH)
+  v = version.read(current_project().config.VERSION_FILE_PATH)
   if v is not None:
     print v
 cli.register(get_version, name='version')
@@ -163,7 +162,7 @@ def install():
   """Print the command to pip install unb-cli from source."""
   # TODO(nick): This is pretty fragile.  If the user names this project
   #   anything else, this command breaks.
-  path = project_lib.project_path('unb-cli')
+  path = Project.get_from_name('unb-cli').path
   if path:
     subprocess.call(['pip', 'install', '-e', path])
   else:

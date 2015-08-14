@@ -9,7 +9,7 @@ from lib.commands.commands import arg, Group
 
 import utilities
 
-from . import config
+from . import current_project
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ group = Group(
 def _django_command(func):
   @wraps(func)
   def wrapper(*args, **kwargs):
-    if not utilities.is_django_project(config.PROJECT_PATH):
+    if not utilities.is_django_project(current_project().path):
       print 'Error: Not in a Django project.'
       return
     else:
@@ -37,11 +37,12 @@ def _django_command(func):
 
 
 def _execute_django_command(name=None, args=None):
+  cp = current_project()
   args = args or []
   name = name or 'help'
 
   cmd = ' '.join([str(arg) for arg in args])
-  utilities.activate_virtualenv(config.PROJECT_PATH)
+  utilities.activate_virtualenv(cp.path)
   try:
     from django.core.management import execute_from_command_line
   except ImportError:
@@ -49,7 +50,7 @@ def _execute_django_command(name=None, args=None):
     return
 
   argv = ['manage.py', name] + args
-  with utilities.push_sys_path(config.PROJECT_PATH):
+  with utilities.push_sys_path(cp.path):
     execute_from_command_line(argv)
 
 
@@ -73,7 +74,7 @@ def runserver():
   """Run the development server and restart on crash."""
   import traceback
   import time
-  os.chdir(config.PROJECT_PATH)
+  os.chdir(current_project().PROJECT_PATH)
   while True:
     try:
       # runserver does a sys.exit() on C-c so we don't have to special-case it
@@ -108,6 +109,6 @@ def clear_cache():
 def test():
   """Run tests and linters."""
   # lint: from main.py  # TODO(nick): Move this into a library!
-  subprocess.call(['flake8', config.PROJECT_PATH])
+  subprocess.call(['flake8', current_project().path])
   # end lint
   _execute_django_command('test')
