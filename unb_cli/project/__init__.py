@@ -121,6 +121,8 @@ def config_path(project_name):
     if (stripped.startswith(project_name) or
         unb_stripped.startswith(project_name)):
       return os.path.join(projects_path, name)
+# TODO(nick): This gets tripped up when emacs temp files are written to the
+#   project directory.
 
 
 def config(config_path):
