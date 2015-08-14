@@ -90,13 +90,14 @@ def copy_config(template_name, dest):
 
 def _build_template(template_path, dest, config_path=None, overwrite=False):
   import markup
-  from library import wrap, wrap_block, pystr
+  from library import wrap, wrap_block, pystr, camel_case
 
   default_env = {
+    'camel_case': camel_case,
     'markup': markup,
+    'pystr': pystr,
     'wrap': wrap,
     'wrap_block': wrap_block,
-    'pystr': pystr,
   }
 
   if config_path is None:

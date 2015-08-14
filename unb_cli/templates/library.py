@@ -61,3 +61,11 @@ def wrap_block(text, indent=0):
 def pystr(s):
   """Output a string as an eval'able representation of a Python string."""
   return s.__repr__()
+
+
+def camel_case(s):
+  # If the string has spaces, convert to underscores
+  s = s.replace(' ', '_')
+  split = s.split('_')
+  cap_list = [word.capitalize() for word in split]
+  return ''.join(cap_list)
