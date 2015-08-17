@@ -11,14 +11,6 @@ def current_project():
   return Project.get_from_path(os.getcwd())
 
 
-def _is_django_project():
-  """A, not totally reliable, test if we're in a Django project."""
-  managepy_path = os.path.join(current_project().path, 'manage.py')
-  if os.path.exists(managepy_path):
-    return True
-  return False
-
-
 def cli_init():
   """Project management utilities."""
   cp = current_project()
@@ -27,11 +19,13 @@ def cli_init():
     if cp.path not in sys.path:
       sys.path.append(cp.path)
 
-  if _is_django_project():
+  if utilities.is_django_project(cp.path):
     # Set the default settings module.
+    default_settings = cp.config.get('DEFAULT_DJANGO_SETTINGS_MODULE',
+                                     'settings')
     os.environ.setdefault(
       'DJANGO_SETTINGS_MODULE',
-      cp.config.get('DEFAULT_DJANGO_SETTINGS_MODULE', 'settings'))
+      default_settings)
 
 
 cli = Group(cli_init)

@@ -25,10 +25,22 @@ group = Group(
 # ========================
 
 
+def _django_dir(path):
+  if os.path.exists(os.path.join(path, 'manage.py')):
+    return path
+  else:
+    for name in os.listdir(path):
+      subpath = os.path.join(path, name)
+      if os.path.isdir(subpath):
+        if os.path.exists(os.path.join(subpath, 'manage.py')):
+          return subpath
+  return None
+
+
 def _django_command(func):
   @wraps(func)
   def wrapper(*args, **kwargs):
-    if not utilities.is_django_project(current_project().path):
+    if not _django_dir(current_project().path):
       print 'Error: Not in a Django project.'
       return
     else:
@@ -50,7 +62,8 @@ def _execute_django_command(name=None, args=None):
     return
 
   argv = ['manage.py', name] + args
-  with utilities.push_sys_path(cp.path):
+  djdir = _django_dir(cp.path)
+  with utilities.push_sys_path(djdir):
     execute_from_command_line(argv)
 
 
@@ -74,7 +87,7 @@ def runserver():
   """Run the development server and restart on crash."""
   import traceback
   import time
-  os.chdir(current_project().path)
+  os.chdir(_django_dir(current_project().path))
   while True:
     try:
       # runserver does a sys.exit() on C-c so we don't have to special-case it

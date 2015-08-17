@@ -11,8 +11,16 @@ def push_sys_path(path):
   sys.path.pop(0)
 
 
-def is_django_project(project_path):
-  return os.path.exists(os.path.join(project_path, 'manage.py'))
+def is_django_project(path):
+  if os.path.exists(os.path.join(path, 'manage.py')):
+    return True
+  else:
+    subdirs = [x[0] for x in os.walk(path)]
+    for subdir in subdirs:
+      subpath = os.path.join(path, subdir)
+      if os.path.exists(os.path.join(subpath, 'manage.py')):
+        return True
+  return False
 
 
 def activate_virtualenv(path):
