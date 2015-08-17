@@ -58,7 +58,8 @@ def _execute_django_command(name=None, args=None):
   try:
     from django.core.management import execute_from_command_line
   except ImportError:
-    print 'Not in a Django project.  Did not run command: %s' % cmd
+    print 'Failed to import Django.  Did not run command: %s' % cmd
+    print 'Have you activated the virtual environment and installed Django?'
     return
 
   argv = ['manage.py', name] + args
