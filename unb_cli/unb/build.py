@@ -20,10 +20,11 @@ def sphinx_docs(component=None):
   cp = current_project()
   starting_directory = os.getcwd()  # get current directory
   try:
-    os.chdir(cp.config.DOCS_PATH)
+    docs_dir = os.path.join(cp.config.PROJECT_PATH, cp.config.DOCS_DIRNAME)
+    os.chdir(docs_dir)
     print 'Cleaning build directory... '
     try:
-      shutil.rmtree(cp.config.DOCS_BUILD_PATH)
+      shutil.rmtree(os.path.join(docs_dir, cp.config.DOCS_BUILD_DIRNAME))
     except OSError:
       # Catches the error when there is no build directory... This is not
       # foolproof.  For example it could also catch permissions errors.
@@ -41,6 +42,8 @@ def sphinx_api_docs(component=None):
   """Build Sphinx docs for a project."""
   cp = current_project()
   # sphinx-apidoc: Build .rst docs from docstrings for all project modules.
+  docs_dir = os.path.join(cp.config.PROJECT_PATH, cp.config.DOCS_DIRNAME)
+  docs_modules_dir = os.path.join(docs_dir, cp.config.DOCS_MODULES_DIRNAME)
   subprocess.call([
     'sphinx-apidoc',
     '--force',         # Overwrite existing files.
@@ -48,7 +51,7 @@ def sphinx_api_docs(component=None):
     # '--no-headings',   # Don't create headings
     '--separate',      # Create separate pages for each module
     '--output-dir',
-    cp.config.DOCS_MODULES_PATH,
+    docs_modules_dir,
     cp.path,           # Directory containing modules to document.
     # exclude directories
     'management/setup',
