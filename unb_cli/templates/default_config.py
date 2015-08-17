@@ -86,7 +86,7 @@ security_reporting_url = None
 security_reporting_email = author_email
 
 
-primary_mailing_list_address = 'foo'
+primary_mailing_list_address = ''
 primary_mailing_list_subscription_url = None
 
 
