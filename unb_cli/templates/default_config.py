@@ -9,26 +9,6 @@ settings as you need.
 from datetime import datetime
 
 
-# ==================================================================
-
-
-# **WARNING** Any file here will get overwritten! **WARNING**
-#
-# These files should NEVER be hand-edited.
-#
-# Any file not listed here will never be re-rendered.
-#
-# Why would you ever re-generate your project anyway?  You may want to update
-# your project to use newer versions of the standard project layout.
-rerenderable = [
-  'setup.py',
-  'LICENSE',
-]
-
-
-# ==================================================================
-
-
 # General Project Information
 # ===========================
 
@@ -52,11 +32,11 @@ author_email = 'nick@unb.services'
 # =====
 
 # The main url:  A general url that could apply to any audience.
-project_url = 'git@bitbucket.org:unbsolutions/something-cool.git'
+project_url = 'https://bitbucket.org/nickzarr/something-cool/'
 
 # Specific urls
-public_url = 'git@bitbucket.org:unbsolutions/something-cool.git'
-source_url = 'git@bitbucket.org:unbsolutions/something-cool.git'
+public_url = 'https://bitbucket.org/nickzarr/something-cool/'
+source_url = 'https://bitbucket.org/nickzarr/something-cool/'
 # docs_url = Found in the Documentation section.
 # issue_tracker = Found in the Issue Tracking section.
 
@@ -90,7 +70,7 @@ mit_copyright_line = ' '.join([
 # Issue Tracking and Contact Information
 # ======================================
 
-issue_tracker_url = 'git@bitbucket.org:unbsolutions/something-cool.git'
+issue_tracker_url = 'https://bitbucket.org/nickzarr/something-cool/issues'
 issue_contact_email = author_email
 
 # URL to direct people that contains information on how to report security
