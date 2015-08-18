@@ -140,7 +140,9 @@ def licenses():
 def bump(part):
   """Bump the version number."""
   from unb_cli import version
-  version.bump_file(current_project().config.VERSION_FILE_PATH, part, '0.0.0')
+  version_file_path = os.path.join(current_project().path,
+                                   current_project().config.VERSION_FILENAME)
+  version.bump_file(version_file_path, part, '0.0.0')
 
 
 def _tag(version, message):
