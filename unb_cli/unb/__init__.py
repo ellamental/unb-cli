@@ -36,14 +36,6 @@ from . import build
 cli.add_group(build.group, name='build')
 
 
-@arg('part', nargs='?', default='patch')
-def bump(part):
-  """Bump the version number."""
-  from unb_cli import version
-  version.bump_file(current_project().config.VERSION_FILE_PATH, part, '0.0.0')
-cli.register(bump)
-
-
 from . import deploy
 cli.add_group(deploy.group, name='deploy')
 
