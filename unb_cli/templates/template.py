@@ -59,6 +59,14 @@ def _write(text, path, overwrite=False):
     f.write(text)
 
 
+def _copy(source, dest, overwrite=False):
+  if os.path.exists(dest) and overwrite is False:
+    logger.info('Path exists and overwrite is False: %s', dest)
+    return
+  logger.info('Copying file to: %s', dest)
+  shutil.copy(source, dest)
+
+
 def list_templates():
   """List the currently available templates."""
   return os.listdir(TEMPLATES_PATH)
@@ -92,6 +100,27 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
   import markup
   from library import wrap, wrap_block, pystr, camel_case
 
+  SKIP_COMPLETELY = (
+    CONFIG_FILENAME,
+    '.DS_Store',
+    '.pyc',
+  )
+
+  COPY_ONLY_PATHS = (
+    # Font files
+    '.otf',
+    '.eot',
+    '.svg',
+    '.ttf',
+    '.woff',
+    '.woff2',
+    # Image files
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+  )
+
   default_env = {
     'camel_case': camel_case,
     'markup': markup,
@@ -108,7 +137,7 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
 
   paths = os.listdir(template_path)
   for path in paths:
-    if path == CONFIG_FILENAME:
+    if path.endswith(SKIP_COMPLETELY):
       continue
 
     # Get the full path to the source file
@@ -131,8 +160,13 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
       _build_template(source_path, dest_path, config_path=config_path,
                       overwrite=overwrite)
     else:
-      rendered = loader.get_template(path).render(env)
-      _write(rendered, dest_path, overwrite)
+      if path.endswith(COPY_ONLY_PATHS):
+        # Some filetypes cause problems when rendering (like encoding errors).
+        # For those, just copy the file instead of rendering it.
+        _copy(source_path, dest_path, overwrite)
+      else:
+        rendered = loader.get_template(path).render(env)
+        _write(rendered, dest_path, overwrite)
 
 
 def build_template(name, dest, config_path=None, overwrite=False):
