@@ -50,6 +50,21 @@ def _load_config(path):
   return ret
 
 
+def _get_env(config_path):
+  import markup
+  from library import wrap, wrap_block, pystr, camel_case
+
+  default_env = {
+    'camel_case': camel_case,
+    'markup': markup,
+    'pystr': pystr,
+    'wrap': wrap,
+    'wrap_block': wrap_block,
+  }
+
+  return dict(default_env, **_load_config(config_path))
+
+
 def _write(text, path, overwrite=False):
   if os.path.exists(path) and overwrite is False:
     logger.info('Path exists and overwrite is False: %s', path)
@@ -97,9 +112,6 @@ def copy_config(template_name, dest):
 
 
 def _build_template(template_path, dest, config_path=None, overwrite=False):
-  import markup
-  from library import wrap, wrap_block, pystr, camel_case
-
   SKIP_COMPLETELY = (
     CONFIG_FILENAME,
     '.DS_Store',
@@ -121,19 +133,11 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
     '.gif',
   )
 
-  default_env = {
-    'camel_case': camel_case,
-    'markup': markup,
-    'pystr': pystr,
-    'wrap': wrap,
-    'wrap_block': wrap_block,
-  }
-
   if config_path is None:
     config_path = _config_path(dest)
 
   loader = _loader(template_path)
-  env = dict(default_env, **_load_config(config_path))
+  env = _get_env(config_path)
 
   paths = os.listdir(template_path)
   for path in paths:
@@ -170,10 +174,25 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
 
 
 def build_template(name, dest, config_path=None, overwrite=False):
+  """Build a template, given a config file in the current working directory.
+
+  If either `before` or `after` functions are defined in the config file, they
+  will be run before and after the full template has rendered (respectively).
+  These functions provide a convenient method for template authors to run
+  common operations, such as running build or install scripts after the
+  template has been rendered.
+  """
+  if config_path is None:
+    config_path = _config_path(dest)
+
+  config = _load_config(config_path)
+  before, after = config.get('before'), config.get('after')
+
+  if before and hasattr(before, '__call__'):
+    before()
+
   template_path = _template_path(name)
-  # TODO(nick): Allow the user to define two functions in the __config__.py
-  #   file: before_render and after_render that each take 1 argument (the
-  #   config) and are called before and after the build.
-  #   This allows the user to do things like add a symlink, that otherwise
-  #   would not be copy-able.
   _build_template(template_path, dest, config_path, overwrite)
+
+  if after and hasattr(after, '__call__'):
+    after()
