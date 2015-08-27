@@ -54,7 +54,7 @@ def _execute_django_command(name=None, args=None):
   name = name or 'help'
 
   cmd = ' '.join([str(arg) for arg in args])
-  utilities.activate_virtualenv(cp.path)
+  cp.activate_venv()
   try:
     from django.core.management import execute_from_command_line
   except ImportError:

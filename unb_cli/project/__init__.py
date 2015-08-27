@@ -156,6 +156,29 @@ class Project(object):
     self._path = self.config.get('PROJECT_PATH')
     return self._path
 
+  @property
+  def venv_path(self):
+    """Get the full path to this project's virtual environment directory."""
+    path = self.config.get('VENV_PATH')
+    if path and os.path.exists(path):
+      return path
+    path = os.path.exists(os.path.join(self.path, 'venv'))
+    if path and os.path.exists(path):
+      return path
+    if not self.name:
+      return None
+    default_venv_dir = os.path.join(os.path.expanduser('~'), '.virtualenvs')
+    path = os.path.join(default_venv_dir, self.name)
+    if os.path.exists(path):
+      return path
+
+  def activate_venv(self):
+    path = self.venv_path
+    if path:
+      activate_this = os.path.join(path, 'venv', 'bin', 'activate_this.py')
+      if os.path.exists(activate_this):
+        execfile(activate_this, dict(__file__=activate_this))
+
   @classmethod
   def list(cls):
     """List all projects with config files in ~/.unb-cli.d/projects/."""
