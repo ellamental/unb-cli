@@ -20,7 +20,7 @@ def sphinx_docs(component=None):
   cp = current_project()
   starting_directory = os.getcwd()  # get current directory
   try:
-    docs_dir = os.path.join(cp.config.PROJECT_PATH, cp.config.DOCS_DIRNAME)
+    docs_dir = os.path.join(cp.path, cp.config.DOCS_DIRNAME)
     os.chdir(docs_dir)
     print 'Cleaning build directory... '
     try:
@@ -42,7 +42,7 @@ def sphinx_api_docs(component=None):
   """Build Sphinx docs for a project."""
   cp = current_project()
   # sphinx-apidoc: Build .rst docs from docstrings for all project modules.
-  docs_dir = os.path.join(cp.config.PROJECT_PATH, cp.config.DOCS_DIRNAME)
+  docs_dir = os.path.join(cp.path, cp.config.DOCS_DIRNAME)
   docs_modules_dir = os.path.join(docs_dir, cp.config.DOCS_MODULES_DIRNAME)
   subprocess.call([
     'sphinx-apidoc',

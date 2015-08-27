@@ -27,10 +27,10 @@ from unb_cli.project import Project
 @arg('name')
 def new(name):
   """Create a new project config at ~/.unb-cli.d/projects/{{name}}.py."""
-  p = Project.get(name)
-  if p:
-    print 'Error: Project name already exists.  Path: ', p.path
-  config_path = p.build_config_path()
+  cp = Project.get(name)
+  if cp:
+    print 'Error: Project name already exists.  Path: ', cp.path
+  config_path = cp.build_config_path()
   project.copy_default_config(config_path)
 
 
@@ -49,9 +49,9 @@ def project_list():
 @group.command(name='current')
 def project_current():
   """Get the project the current working directory is in."""
-  p = current_project()
-  if p:
-    print p.name
+  cp = current_project()
+  if cp and not cp.anon:
+    print cp.name
 
 
 @group.command(name='path')
@@ -59,20 +59,23 @@ def project_current():
 def project_path(name):
   """Return the PROJECT_PATH (optionally for a project_name or (sub)path)."""
   if name is None:
-    p = current_project()
+    cp = current_project()
   else:
-    p = Project.get(name)
-  if p:
-    print p.path
+    cp = Project.get(name)
+  if cp:
+    print cp.path
 
 
 @group.command(name='config-path')
-@arg('name')
+@arg('name', nargs='?')
 def config_path(name):
   """Get the full path to the project config file given a project name."""
-  p = Project.get(name)
-  if p:
-    print p.config_path
+  if not name:
+    cp = current_project()
+  else:
+    cp = Project.get(name)
+  if cp:
+    print cp.config_path
 
 
 @group.command(name='config')
@@ -80,32 +83,25 @@ def config_path(name):
 def project_config(name):
   """Print the project configuration as (key: value)."""
   if not name:
-    p = current_project()
+    cp = current_project()
   else:
-    p = Project.get(name)
-  for key, value in p.config.items():
+    cp = Project.get(name)
+  for key, value in cp.config.items():
     print key + ':', value
-
-
-@group.command(name='copy-default-config')
-@arg('dest')
-def copy_default_config(dest):
-  """Copy the default project config to dest."""
-  project.copy_default_config(dest)
 
 
 @group.command(name='conf')
 @arg('key', nargs='?')
 def conf(key):
   """Access config settings (mostly a debugging tool)."""
-  p = current_project()
+  cp = current_project()
   if not key:
     from unb_cli import random_tools
-    random_tools.pp(p.config)
+    random_tools.pp(cp.config)
   else:
     key = key.upper()
     try:
-      print "%s: %s" % (key, p.config[key])
+      print "%s: %s" % (key, cp.config[key])
     except KeyError:
       pass
 
@@ -121,10 +117,10 @@ def mkconfig():
 def project_venv_activate_path(project_name):
   """Return a path to the project's venv/bin/activate script."""
   if project_name is None:
-    p = current_project()
+    cp = current_project()
   else:
-    p = Project.get(project_name)
-  venv_activate_path = p.venv_activate_path
+    cp = Project.get(project_name)
+  venv_activate_path = cp.venv_activate_path
   if venv_activate_path:
     print venv_activate_path
 

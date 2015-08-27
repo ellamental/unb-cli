@@ -56,13 +56,6 @@ def _load_config(path=None, defaults=None):
   return Config(**_clean_config(ret))
 
 
-def _get_project_name_from_project_path(path):
-  """Get a project name from a project path.
-
-  Note: This does not check that we're in a valid project."""
-  return os.path.split(path)[-1]
-
-
 def _get_fuzzy_name(names, fuzzy_name):
   """Return the full project name that matches the fuzzy_name.
 
@@ -120,13 +113,10 @@ class Project(object):
   #   classmethods.
   def __init__(self, name=None, path=None, anon=False):
     if path and not name:
-      name = _get_project_name_from_project_path(path)
+      name = os.path.split(path)[-1]
       self._path = path
+    self.name = name
     self.anon = anon
-    if anon:
-      self.name = ""
-    else:
-      self.name = name
 
   def __repr__(self):
     return 'Project(name="' + str(self.name) + '", path="' + self.path + '")'
@@ -187,6 +177,9 @@ class Project(object):
       if os.path.exists(activate_this):
         execfile(activate_this, dict(__file__=activate_this))
 
+  # Classmethods
+  # ============
+
   @classmethod
   def list(cls):
     """List all projects with config files in ~/.unb-cli.d/projects/."""
@@ -223,119 +216,9 @@ class Project(object):
       path = os.path.dirname(path)
 
 
-# Project Configuration Loading and Copying
-# =========================================
-
-def config_path(project_name):
-  """Get the full path to the project config file given a project name."""
-  projects_path = PROJECTS_PATH
-  project_names = os.listdir(projects_path)
-  for name in project_names:
-    stripped = name.rstrip('.py')
-    unb_stripped = stripped.lstrip('unb-')
-    if (stripped.startswith(project_name) or
-        unb_stripped.startswith(project_name)):  # noqa
-      return os.path.join(projects_path, name)
-# TODO(nick): This gets tripped up when emacs temp files are written to the
-#   project directory.
-
-
-def config(config_path):
-  """Return the project configuration as a Config object."""
-  return _load_config(config_path)
-
-
 def copy_default_config(dest):
   """Copy the default config (useful for creating new projects)."""
   return shutil.copy(_default_config_path(), dest)
-
-
-# Project Management Functions
-# ============================
-
-def project_name_from_path(path):
-  """If path is in a project, return the project path, otherwise return "".
-
-  Note: This may not be a valid unb-cli project!  It will return the base path
-    of any git project.
-  """
-  while True:
-    if os.path.exists(os.path.join(path, '.git')):
-      return path
-    if not path or path == ROOT_PATH:
-      return None
-    path = os.path.dirname(path)
-
-
-def project_path_from_name(name):
-  """Return a project path given a project name.
-
-  Name is allowed to omit the "unb-" portion of a project name.
-  """
-  project_config = config(config_path(name))
-  return project_config.get('PROJECT_PATH', '')
-
-
-def new(name):
-  pass
-
-
-def list_projects():
-  filenames = os.listdir(PROJECTS_PATH)
-  return [f[:-3] for f in filenames
-          if f.endswith('.py') and not f.startswith('__')]
-
-
-def project_path(project_name_or_path):
-  conf_path = config_path(project_name_or_path)
-  if conf_path:
-    conf = config(conf_path)
-    if conf:
-      return conf.get('PROJECT_PATH')
-  return find_parent_project_path(project_name_or_path)
-
-
-def find_parent_project_path(path):
-  """If path is in a project, return the project path, otherwise return None.
-
-  Note: This may not be a valid unb-cli project!  It will return the base path
-    of any git project.
-  """
-  if os.path.exists(path):
-    while True:
-      if os.path.exists(os.path.join(path, '.git')):
-        return path
-      if not path or path == ROOT_PATH:
-        return None
-      path = os.path.dirname(path)
-
-
-def get_project_name_from_path(project_path):
-  """Retrieve a project name given a project_path.
-
-  Note: Currently projects must be named the same as their directory names and
-    duplicate project names are not allowed.
-
-  TODO(nick): Allow the project name to differ from the project directory name.
-  """
-  if project_path:
-    return os.path.split(project_path)[-1]
-  return ''
-
-
-def venv_path(project_path):
-  """Given a project path, return the path to the venv for that project."""
-  if project_path:
-    return os.path.join(project_path, 'venv')
-
-
-def venv_activate_path(project_path):
-  """Given a project path, return the path to the activate script."""
-  project_venv_path = venv_path(project_path)
-  if project_venv_path:
-    activate_path = os.path.join(project_venv_path, 'bin', 'activate')
-    if os.path.exists(activate_path):
-      return activate_path
 
 
 # UNB-CLI Configuration Initialization

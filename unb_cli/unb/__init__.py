@@ -6,6 +6,8 @@ from lib.commands.commands import arg, Group
 
 from unb_cli.project import Project
 
+import utilities
+
 
 def current_project():
   return Project.get_from_path(os.getcwd())
@@ -13,12 +15,13 @@ def current_project():
 
 def cli_init():
   """Project management utilities."""
-  cp = current_project()
-  if cp.path:
-    # Add the project path to sys.path for all utilities.
-    if cp.path not in sys.path:
-      sys.path.append(cp.path)
+  # TODO(nick): Don't forget to remove this code.
+  # if cp.path:
+  #   # Add the project path to sys.path for all utilities.
+  #   if cp.path not in sys.path:
+  #     sys.path.append(cp.path)
 
+  cp = current_project()
   if utilities.is_django_project(cp.path):
     # Set the default settings module.
     default_settings = cp.config.get('DEFAULT_DJANGO_SETTINGS_MODULE',
@@ -110,7 +113,6 @@ cli.add_group(project.group, name='project')
 
 def shell():
   """Run shell."""
-  import utilities
   if utilities.is_django_project(current_project().path):
     import django_commands
     django_commands._execute_django_command('shell_plus')
