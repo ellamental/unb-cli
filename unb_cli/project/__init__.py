@@ -63,14 +63,6 @@ def _get_project_name_from_project_path(path):
   return os.path.split(path)[-1]
 
 
-def _get_config_path_from_project_name(name):
-  """Return the path to the config file for project[name] or None."""
-  path = os.path.join(PROJECTS_PATH, name + '.py')
-  if os.path.exists(path):
-    return path
-  return None
-
-
 def _get_fuzzy_name(names, fuzzy_name):
   """Return the full project name that matches the fuzzy_name.
 
@@ -127,12 +119,9 @@ class Project(object):
   #   if we find a project from the given name/path, instead of doing it in the
   #   classmethods.
   def __init__(self, name=None, path=None, anon=False):
-    if name:
-      self.config_path = _get_config_path_from_project_name(name)
-    elif path:
+    if path and not name:
       name = _get_project_name_from_project_path(path)
       self._path = path
-      self.config_path = _get_config_path_from_project_name(name)
     self.anon = anon
     if anon:
       self.name = ""
@@ -141,6 +130,18 @@ class Project(object):
 
   def __repr__(self):
     return 'Project(name="' + str(self.name) + '", path="' + self.path + '")'
+
+  def build_config_path(self):
+    if not self.name:
+      return None
+    return os.path.join(PROJECTS_PATH, self.name + '.py')
+
+  @property
+  def config_path(self):
+    """Return the path to the config file for this project or None."""
+    path = self.build_config_path()
+    if os.path.exists(path):
+      return path
 
   @property
   def config(self):
@@ -162,7 +163,7 @@ class Project(object):
     path = self.config.get('VENV_PATH')
     if path and os.path.exists(path):
       return path
-    path = os.path.exists(os.path.join(self.path, 'venv'))
+    path = os.path.join(self.path, 'venv')
     if path and os.path.exists(path):
       return path
     if not self.name:
@@ -171,6 +172,13 @@ class Project(object):
     path = os.path.join(default_venv_dir, self.name)
     if os.path.exists(path):
       return path
+
+  @property
+  def venv_activate_path(self):
+    """Get the full path to this project's venv/bin/activate script."""
+    venv_path = self.venv_path
+    if venv_path:
+      return os.path.join(venv_path, 'bin', 'activate')
 
   def activate_venv(self):
     path = self.venv_path
@@ -217,12 +225,6 @@ class Project(object):
 
 # Project Configuration Loading and Copying
 # =========================================
-
-def make_config_path(project_name):
-  if not project_name.endswith('.py'):
-    project_name = project_name + '.py'
-  return os.path.join(PROJECTS_PATH, project_name)
-
 
 def config_path(project_name):
   """Get the full path to the project config file given a project name."""
