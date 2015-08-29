@@ -1,3 +1,6 @@
+import argparse
+import logging
+import imp
 import os
 import subprocess
 import sys
@@ -7,6 +10,9 @@ from lib.commands.commands import arg, Group
 from unb_cli.project import Project
 
 import utilities
+
+
+logger = logging.getLogger(__name__)
 
 
 def current_project():
@@ -157,3 +163,41 @@ def install():
     print 'cd unb-cli-directory'
     print 'pip install -e .'
 cli.register(install)
+
+
+@arg('name', nargs='?', default="",
+     help="The name of the build.py command you want to run.")
+@arg('args', nargs=argparse.REMAINDER,
+     help="Arguments to pass to the build.py command.")
+def b(name, args):
+  """Execute functions contained in a project's project_root/build.py file."""
+  cp = current_project()
+  path = cp.path
+
+  # Add the project path to sys.path
+  sys.path.insert(0, path)
+
+  build_file_path = os.path.join(path, 'build.py')
+  if not os.path.exists(build_file_path):
+    logger.info('No build script found.')
+    return
+
+  # build_script = imp.load_source('build_script', build_file_path)
+  # method = getattr(build_script, name, None)
+
+  build_methods = {}
+  execfile(build_file_path, build_methods)
+  print 'build_methods'
+  print '============='
+  for k, v in build_methods.items():
+    if k != '__builtins__':
+      print k + ':', v
+  method = build_methods.get(name)
+
+  if not method:
+    logger.info('Method (%s) not found.', name)
+    return
+
+  method(*args)
+
+cli.register(b)

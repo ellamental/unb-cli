@@ -173,7 +173,7 @@ class Project(object):
   def activate_venv(self):
     path = self.venv_path
     if path:
-      activate_this = os.path.join(path, 'venv', 'bin', 'activate_this.py')
+      activate_this = os.path.join(path, 'bin', 'activate_this.py')
       if os.path.exists(activate_this):
         execfile(activate_this, dict(__file__=activate_this))
 
