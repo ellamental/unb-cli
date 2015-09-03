@@ -48,21 +48,20 @@ def _django_command(func):
   return wrapper
 
 
-def _execute_django_command(name=None, args=None):
-  cp = current_project()
-  args = args or []
+def _execute_django_command(name=None, *args):
   name = name or 'help'
-
-  cmd = ' '.join([str(arg) for arg in args])
+  cp = current_project()
   cp.activate_venv()
+
   try:
     from django.core.management import execute_from_command_line
   except ImportError:
+    cmd = ' '.join([str(arg) for arg in args])
     print 'Failed to import Django.  Did not run command: %s' % cmd
     print 'Have you activated the virtual environment and installed Django?'
     return
 
-  argv = ['manage.py', name] + args
+  argv = ['manage.py', name] + list(args)
   djdir = _django_dir(cp.path)
   with utilities.push_sys_path(djdir):
     execute_from_command_line(argv)
@@ -79,7 +78,7 @@ def _execute_django_command(name=None, args=None):
      help="Arguments to pass to the manage.py command.")
 def m(name, args):
   """Run manage.py commands (using the dev environment settings)."""
-  _execute_django_command(name, args)
+  _execute_django_command(name, *args)
 
 
 @group.command(name='run')
