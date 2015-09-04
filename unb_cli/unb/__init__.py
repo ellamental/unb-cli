@@ -30,8 +30,13 @@ def cli_init():
   cp = current_project()
   if utilities.is_django_project(cp.path):
     # Set the default settings module.
+    # TODO(nick): This makes some pretty specific assumptions about a project's
+    #   structure.  Maybe this should be configured explicitly in the project's
+    #   config file?
+    cp_settings = cp.config.APP_DIRNAME + '.settings.dev'
+
     default_settings = cp.config.get('DEFAULT_DJANGO_SETTINGS_MODULE',
-                                     'settings')
+                                     cp_settings)
     os.environ.setdefault(
       'DJANGO_SETTINGS_MODULE',
       default_settings)
@@ -119,9 +124,10 @@ cli.add_group(project.group, name='project')
 
 def shell():
   """Run shell."""
-  if utilities.is_django_project(current_project().path):
-    import django_commands
-    django_commands._execute_django_command('shell_plus')
+  cp = current_project()
+  if utilities.is_django_project(cp.path):
+    os.chdir(cp.path)
+    subprocess.call(['./manage.py', 'shell_plus'])
   else:
     subprocess.call(['ipython'])
 cli.register(shell)
