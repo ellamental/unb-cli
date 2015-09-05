@@ -1,7 +1,11 @@
+import logging
 import os
 import sys
 
 from contextlib import contextmanager
+
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -12,12 +16,11 @@ def push_sys_path(path):
 
 
 def is_django_project(path):
-  if os.path.exists(os.path.join(path, 'manage.py')):
-    return True
-  else:
-    subdirs = [x[0] for x in os.walk(path)]
-    for subdir in subdirs:
-      subpath = os.path.join(path, subdir)
-      if os.path.exists(os.path.join(subpath, 'manage.py')):
-        return True
+  cwd = os.getcwd()
+  while True:
+    if os.path.exists(os.path.join(cwd, 'manage.py')):
+      return True
+    if cwd == path or cwd == os.path.sep:
+      return False
+    cwd = os.path.dirname(cwd)
   return False
