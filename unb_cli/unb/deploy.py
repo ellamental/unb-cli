@@ -1,6 +1,7 @@
+import argparse
 import subprocess
 
-from lib.commands.commands import Group
+from lib.commands.commands import arg, Group
 
 
 group = Group(
@@ -20,3 +21,12 @@ def staging():
   subprocess.call(['git', 'push', 'heroku', 'master'])
   subprocess.call(
     ['heroku', 'run', './manage.py', 'migrate'])
+
+
+@group.command('run')
+@arg('args', nargs=argparse.REMAINDER,
+     help="Arguments to pass to the manage.py command.")
+def run(args):
+  """Run a command using `heroku run ./manage.py` on the default Heroku app."""
+  base = ['heroku', 'run', './manage.py']
+  subprocess.call(base + args)
