@@ -1,3 +1,14 @@
+"""
+Deployment Utilities
+====================
+
+A set of utilities to assist in deployment-related tasks.
+
+
+NOTE: Currently this assumes that we are deploying to Heroku.
+
+"""
+
 import argparse
 import subprocess
 
