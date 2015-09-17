@@ -50,8 +50,8 @@ from . import build
 cli.add_group(build.group, name='build')
 
 
-from . import deploy
-cli.add_group(deploy.group, name='deploy')
+from . import heroku
+cli.add_group(heroku.group, name='heroku')
 
 
 from . import django_commands
