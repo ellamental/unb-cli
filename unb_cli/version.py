@@ -14,6 +14,7 @@ def read(version_file_path, default=None):
   Returns (str) version or (None) if the file was not found and no default was
   provided.
   """
+  # TODO(nick): This errors if version_file_path is None
   if not os.path.isfile(version_file_path):
     return default
   with open(version_file_path) as f:

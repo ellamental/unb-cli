@@ -149,15 +149,6 @@ def update_remote(app_name):
 cli.register(update_remote, name='update-remote')
 
 
-def get_version():
-  """Get the version number of the current project."""
-  from unb_cli import version
-  v = version.read(current_project().config.VERSION_FILE_PATH)
-  if v is not None:
-    print v
-cli.register(get_version, name='version')
-
-
 def install():
   """Print the command to pip install unb-cli from source."""
   # TODO(nick): This is pretty fragile.  If the user names this project

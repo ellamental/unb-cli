@@ -136,9 +136,7 @@ def licenses():
 def bump(part):
   """Bump the version number."""
   from unb_cli import version
-  version_file_path = os.path.join(current_project().path,
-                                   current_project().config.VERSION_FILENAME)
-  version.bump_file(version_file_path, part, '0.0.0')
+  version.bump_file(current_project().version_file_path, part, '0.0.0')
 
 
 def _tag(version, message):
@@ -156,3 +154,12 @@ def tag(message):
                                    current_project().config.VERSION_FILENAME)
   v = version.read(version_file_path)
   _tag(v, message)
+
+
+@group.command(name='version')
+def get_version():
+  """Get the version number of the current project."""
+  from unb_cli import version
+  v = version.read(current_project().version_file_path)
+  if v is not None:
+    print v

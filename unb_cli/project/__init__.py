@@ -177,6 +177,17 @@ class Project(object):
       if os.path.exists(activate_this):
         execfile(activate_this, dict(__file__=activate_this))
 
+  @property
+  def version_file_path(self):
+    """Returns a path to the version file, though the file may not exist."""
+    version_file_path = os.path.join(self.path,
+                                     self.config.VERSION_FILENAME)
+    # TODO(nick): Check if this exists before returning a possibly invalid path
+    # if os.path.exists(version_file_path):
+    #   return version_file_path
+    return version_file_path
+
+
   # Classmethods
   # ============
 
