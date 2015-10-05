@@ -89,7 +89,15 @@ from . import build
 cli.add_group(build.group, name='build')
 
 
-def cli_install():
+from . import django_commands
+cli.add_group(django_commands.group, name='dj')
+
+
+from . import heroku
+cli.add_group(heroku.group, name='heroku')
+
+
+def install_cli():
   """Print the command to pip install unb-cli from source."""
   # TODO(nick): This is pretty fragile.  If the user names this project
   #   anything else, this command breaks.
@@ -99,48 +107,7 @@ def cli_install():
   else:
     print 'cd unb-cli-directory'
     print 'pip install -e .'
-cli.register(cli_install)
-
-
-from . import django_commands
-cli.add_group(django_commands.group, name='dj')
-
-
-from . import heroku
-cli.add_group(heroku.group, name='heroku')
-
-
-@arg('package', nargs='?', default='requirements.txt')
-@arg('--nocache', action='store_true', default=False,
-     help="Don't use pip's cache (fetch all packages from server).")
-@arg('-v', '--verbose', action='store_false', help="Enable verbose output.")
-def install(package, nocache, verbose):
-  """Install package or packages from a requirements file.
-
-  If `package` ends with `.txt` then `pip install -r package` is used.  If
-  `package` is not supplied, it defaults to `requirements.txt`.
-  """
-
-  if package.endswith('.txt'):
-    command = ['pip', 'install', '-r', package]
-    if not verbose:
-      command = command + ['-q']
-
-    # Find the file!  It might not be in the current directory.
-    while True:
-      path = os.getcwd()
-      print 'path: ', path
-      if os.path.exists(package):
-        # subprocess.call(command)
-        print 'found %s' % package
-        break
-      if is_project_root(path) or path == os.path.abspath(os.sep):
-        print "%s not found in project." % package
-        break
-      os.chdir(os.pardir)
-  else:
-    subprocess.call(['pip', 'install', package])
-cli.register(install)
+cli.register(install_cli, name='install-cli')
 
 
 def lint():
@@ -164,6 +131,10 @@ def lint():
   if path:
     subprocess.call(['flake8', path])
 cli.register(lint)
+
+
+import pip
+cli.add_group(pip.group, name='pip')
 
 
 def prettify(src, dest):
