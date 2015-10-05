@@ -7,7 +7,7 @@ import sys
 
 from lib.commands.commands import arg, Group
 
-from unb_cli.project import Project
+from unb_cli.project import Project, is_project_root
 
 import utilities
 
@@ -45,40 +45,102 @@ def cli_init():
 cli = Group(cli_init)
 
 
-# Each module under this exports ``group`` which is added here.
+
+
+@arg('name', nargs='?', default="",
+     help="The name of the build.py command you want to run.")
+@arg('args', nargs=argparse.REMAINDER,
+     help="Arguments to pass to the build.py command.")
+def b(name, args):
+  """Execute functions contained in a project's project_root/build.py file."""
+  cp = current_project()
+  path = cp.path
+
+  # Add the project path to sys.path
+  sys.path.insert(0, path)
+
+  build_file_path = os.path.join(path, 'build.py')
+  if not os.path.exists(build_file_path):
+    logger.info('No build script found.')
+    return
+
+  # build_script = imp.load_source('build_script', build_file_path)
+  # method = getattr(build_script, name, None)
+
+  build_methods = {}
+  execfile(build_file_path, build_methods)
+  print 'build_methods'
+  print '============='
+  for k, v in build_methods.items():
+    if k != '__builtins__':
+      print k + ':', v
+  method = build_methods.get(name)
+
+  if not method:
+    logger.info('Method (%s) not found.', name)
+    return
+
+  method(*args)
+
+cli.register(b)
+
+
 from . import build
 cli.add_group(build.group, name='build')
 
 
-from . import heroku
-cli.add_group(heroku.group, name='heroku')
+def cli_install():
+  """Print the command to pip install unb-cli from source."""
+  # TODO(nick): This is pretty fragile.  If the user names this project
+  #   anything else, this command breaks.
+  path = Project.get_from_name('unb-cli').path
+  if path:
+    subprocess.call(['pip', 'install', '-e', path])
+  else:
+    print 'cd unb-cli-directory'
+    print 'pip install -e .'
+cli.register(cli_install)
 
 
 from . import django_commands
 cli.add_group(django_commands.group, name='dj')
 
 
-@arg('-v',
-     '--verbose',
-     action='store_false',
-     help="Enable verbose output.")
-def install_requirements(verbose=False):
-  """pip install (dev-)requirements.txt"""
+from . import heroku
+cli.add_group(heroku.group, name='heroku')
 
-  def cmd(name):
-    """Build the pip install command with appropriate options."""
-    command = ['pip', 'install', '-r', name]
+
+@arg('package', nargs='?', default='requirements.txt')
+@arg('--nocache', action='store_true', default=False,
+     help="Don't use pip's cache (fetch all packages from server).")
+@arg('-v', '--verbose', action='store_false', help="Enable verbose output.")
+def install(package, nocache, verbose):
+  """Install package or packages from a requirements file.
+
+  If `package` ends with `.txt` then `pip install -r package` is used.  If
+  `package` is not supplied, it defaults to `requirements.txt`.
+  """
+
+  if package.endswith('.txt'):
+    command = ['pip', 'install', '-r', package]
     if not verbose:
       command = command + ['-q']
-    return command
 
-  print 'Installing project dependencies...'
-  cp = current_project()
-  subprocess.call(cmd(cp.config.REQUIREMENTS_FILE_PATH))
-  subprocess.call(cmd(cp.config.DEV_REQUIREMENTS_FILE_PATH))
-  # TODO(nick): Install npm dependencies per frontend project.
-  #   $ npm install
-cli.register(install_requirements, name='install-requirements')
+    # Find the file!  It might not be in the current directory.
+    while True:
+      path = os.getcwd()
+      print 'path: ', path
+      if os.path.exists(package):
+        # subprocess.call(command)
+        print 'found %s' % package
+        break
+      if is_project_root(path) or path == os.path.abspath(os.sep):
+        print "%s not found in project." % package
+        break
+      os.chdir(os.pardir)
+  else:
+    subprocess.call(['pip', 'install', package])
+cli.register(install)
 
 
 def lint():
@@ -147,54 +209,3 @@ def update_remote(app_name):
   subprocess.call(['git', 'remote', 'rm', 'heroku'])
   subprocess.call(['heroku', 'git:remote', '-a', app_name, '--ssh-git'])
 cli.register(update_remote, name='update-remote')
-
-
-def install():
-  """Print the command to pip install unb-cli from source."""
-  # TODO(nick): This is pretty fragile.  If the user names this project
-  #   anything else, this command breaks.
-  path = Project.get_from_name('unb-cli').path
-  if path:
-    subprocess.call(['pip', 'install', '-e', path])
-  else:
-    print 'cd unb-cli-directory'
-    print 'pip install -e .'
-cli.register(install)
-
-
-@arg('name', nargs='?', default="",
-     help="The name of the build.py command you want to run.")
-@arg('args', nargs=argparse.REMAINDER,
-     help="Arguments to pass to the build.py command.")
-def b(name, args):
-  """Execute functions contained in a project's project_root/build.py file."""
-  cp = current_project()
-  path = cp.path
-
-  # Add the project path to sys.path
-  sys.path.insert(0, path)
-
-  build_file_path = os.path.join(path, 'build.py')
-  if not os.path.exists(build_file_path):
-    logger.info('No build script found.')
-    return
-
-  # build_script = imp.load_source('build_script', build_file_path)
-  # method = getattr(build_script, name, None)
-
-  build_methods = {}
-  execfile(build_file_path, build_methods)
-  print 'build_methods'
-  print '============='
-  for k, v in build_methods.items():
-    if k != '__builtins__':
-      print k + ':', v
-  method = build_methods.get(name)
-
-  if not method:
-    logger.info('Method (%s) not found.', name)
-    return
-
-  method(*args)
-
-cli.register(b)

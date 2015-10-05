@@ -14,26 +14,6 @@ PROJECTS_PATH = os.path.join(UNB_CLI_D_PATH, PROJECTS_DIRNAME)
 TEMPLATES_PATH = os.path.join(UNB_CLI_D_PATH, TEMPLATES_DIRNAME)
 
 
-class Config(dict):
-  """Simple dict wrapper that allows dotted lookup (e.g., config.attr).
-
-  Raises:
-
-    AttributeError: When attribute does not exist for both attribute lookup
-      (config.attr) and item lookup (config['attr']).
-  """
-
-  def __init__(self, **kwargs):
-    super(Config, self).__init__(**kwargs)
-
-  def __getattr__(self, name):
-    """Delegate attribute lookup to __getitem__."""
-    return self.__getitem__(name)
-
-  def __getitem__(self, name):
-    return super(Config, self).__getitem__(name)
-
-
 def _clean_config(d):
   return {k: v for k, v in d.items() if k.isupper() and not k.startswith('_')}
 
@@ -82,6 +62,41 @@ def _get_fuzzy_name(names, fuzzy_name):
         name.lstrip('unb-').startswith(fuzzy_name)):  # noqa
       return name
   return None
+
+
+# Public
+# ======
+
+def is_project_root(path):
+  """Returns True if `path` is a project's root directory, False if not.
+
+  A root directory is determined by the presence of a VCS file (like .git).
+  """
+  if not os.path.isdir(path):
+    return False
+
+  if os.path.exists(os.path.join(path, '.git')):
+    return True
+
+
+class Config(dict):
+  """Simple dict wrapper that allows dotted lookup (e.g., config.attr).
+
+  Raises:
+
+    AttributeError: When attribute does not exist for both attribute lookup
+      (config.attr) and item lookup (config['attr']).
+  """
+
+  def __init__(self, **kwargs):
+    super(Config, self).__init__(**kwargs)
+
+  def __getattr__(self, name):
+    """Delegate attribute lookup to __getitem__."""
+    return self.__getitem__(name)
+
+  def __getitem__(self, name):
+    return super(Config, self).__getitem__(name)
 
 
 class Project(object):
@@ -220,7 +235,7 @@ class Project(object):
     """
     start_path = path
     while True:
-      if os.path.exists(os.path.join(path, '.git')):
+      if is_project_root(path):
         return cls(path=path)
       if not path or path == ROOT_PATH:
         return cls(path=start_path, anon=True)

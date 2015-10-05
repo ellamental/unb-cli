@@ -1,0 +1,15 @@
+0.0.7
+=====
+
+- Adds `unb install`
+
+  Installs pip package, or recursively installs packages from a requirements
+  file.  `unb install requirements_file.txt` will search parent directories up
+  to, and including, the project root for the `requirements_file.txt` file.
+  `unb install` with no arguments defaults to `unb install requirements.txt`.
+
+
+<= 0.0.6
+========
+
+- Initial project development.
