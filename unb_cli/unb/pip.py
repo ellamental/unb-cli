@@ -3,6 +3,8 @@ import subprocess
 
 from lib.commands.commands import arg, Group
 
+from unb_cli.project import is_project_root
+
 
 group = Group(
   title='pip interface and tools',
@@ -15,7 +17,7 @@ group = Group(
 @arg('--nocache', action='store_true', default=False,
      help="Don't use pip's cache (fetch all packages from server).")
 @arg('-v', '--verbose', action='store_false', help="Enable verbose output.")
-def install(package, nocache, verbose):
+def install(nocache, verbose, package):
   """Install package or packages from a requirements file.
 
   If `package` ends with `.txt` then `pip install -r package` is used.  If
@@ -30,10 +32,9 @@ def install(package, nocache, verbose):
     # Find the file!  It might not be in the current directory.
     while True:
       path = os.getcwd()
-      print 'path: ', path
       if os.path.exists(package):
-        # subprocess.call(command)
-        print 'found %s' % package
+        subprocess.call(command)
+        print 'Installed packages from %s' % os.path.join(path, package)
         break
       if is_project_root(path) or path == os.path.abspath(os.sep):
         print "%s not found in project." % package
