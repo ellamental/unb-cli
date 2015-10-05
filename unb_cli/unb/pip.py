@@ -17,7 +17,7 @@ group = Group(
 @arg('--nocache', action='store_true', default=False,
      help="Don't use pip's cache (fetch all packages from server).")
 @arg('-v', '--verbose', action='store_false', help="Enable verbose output.")
-def install(nocache, verbose, package):
+def install(package, nocache, verbose):
   """Install package or packages from a requirements file.
 
   If `package` ends with `.txt` then `pip install -r package` is used.  If
