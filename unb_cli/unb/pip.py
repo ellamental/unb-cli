@@ -41,3 +41,11 @@ def install(package, nocache, verbose):
       os.chdir(os.pardir)
   else:
     subprocess.call(['pip', 'install', package])
+
+
+@group.command(name='uninstall')
+@arg('package')
+def uninstall(package):
+  """Uninstall a package using pip."""
+
+  subprocess.call(['pip', 'uninstall', package])
