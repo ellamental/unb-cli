@@ -33,7 +33,7 @@ import textwrap
 
 
 def arg(*args, **kwargs):
-  """Annotate a function's by adding an Argparse arg to the meta-data.
+  """Annotate a function by adding an Argparse arg to the meta-data.
 
   This appends an Argparse "argument" to the function's ``ARGPARSE_ARGS_LIST``
   attribute, creating ``ARGPARSE_ARGS_LIST`` if it does not already exist.

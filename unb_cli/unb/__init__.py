@@ -21,11 +21,6 @@ def current_project():
 
 def cli_init():
   """Project management utilities."""
-  # TODO(nick): Don't forget to remove this code.
-  # if cp.path:
-  #   # Add the project path to sys.path for all utilities.
-  #   if cp.path not in sys.path:
-  #     sys.path.append(cp.path)
 
   cp = current_project()
   if utilities.is_django_project(cp.path):
