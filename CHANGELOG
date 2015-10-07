@@ -1,3 +1,9 @@
+0.0.8
+=====
+
+- Rewrite of lib.commands and extract it to a separate package ([Clams](https://github.com/unbservices/clams)).
+
+
 0.0.7
 =====
 

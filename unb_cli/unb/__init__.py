@@ -6,7 +6,6 @@ import subprocess
 import sys
 
 from clams import arg, Command
-from lib.commands.commands import Group
 
 from unb_cli.project import Project, is_project_root
 
