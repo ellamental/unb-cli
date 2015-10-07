@@ -1,22 +1,24 @@
 import os
 import subprocess
 
-from lib.commands.commands import arg, Group
+from clams import arg, Command
 
 from unb_cli.project import is_project_root
 
 
-group = Group(
-  title='pip interface and tools',
-  description='pip interface and tools',
-)
+pip = Command('pip')
+
+# group = Group(
+#   title='pip interface and tools',
+#   description='pip interface and tools',
+# )
 
 
-@group.command(name='install')
+@pip.register('install')
 @arg('package', nargs='?', default='requirements.txt')
-@arg('--nocache', action='store_true', default=False,
+@arg('--nocache', action='store_true',
      help="Don't use pip's cache (fetch all packages from server).")
-@arg('-v', '--verbose', action='store_false', help="Enable verbose output.")
+@arg('-v', '--verbose', action='store_true', help="Enable verbose output.")
 def install(package, nocache, verbose):
   """Install package or packages from a requirements file.
 
@@ -44,7 +46,7 @@ def install(package, nocache, verbose):
     subprocess.call(['pip', 'install', package])
 
 
-@group.command(name='uninstall')
+@pip.register('uninstall')
 @arg('package')
 def uninstall(package):
   """Uninstall a package using pip."""

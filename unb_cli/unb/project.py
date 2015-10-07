@@ -1,29 +1,25 @@
 import os
 import subprocess
 
-from lib.commands.commands import arg, Group
+from clams import arg, Command
 
+from unb_cli.project import Project, copy_default_config, make_config_dir
 from . import current_project
 
 
-# Projects
-# ========
+project = Command('project')
 
-group = Group(
-  title='Project management utilities',
-  description='''Project management utilities.
+# group = Group(
+#   title='Project management utilities',
+#   description='''Project management utilities.
 
-Tools that help you work with your projects, store and access configuration and
-consolidate your tooling across projects.
-''',
-)
-
-
-from unb_cli import project
-from unb_cli.project import Project
+# Tools that help you work with your projects, store and access configuration and
+# consolidate your tooling across projects.
+# ''',
+# )
 
 
-@group.command(name='new')
+@project.register('new')
 @arg('name')
 def new(name):
   """Create a new project config at ~/.unb-cli.d/projects/{{name}}.py."""
@@ -31,10 +27,10 @@ def new(name):
   if cp:
     print 'Error: Project name already exists.  Path: ', cp.path
   config_path = cp.build_config_path()
-  project.copy_default_config(config_path)
+  copy_default_config(config_path)
 
 
-@group.command(name='list')
+@project.register('list')
 def project_list():
   """List projects configured to use UNB CLI."""
   projects = Project.list()
@@ -46,7 +42,7 @@ def project_list():
     print 'No projects found.'
 
 
-@group.command(name='current')
+@project.register('current')
 def project_current():
   """Get the project the current working directory is in."""
   cp = current_project()
@@ -54,7 +50,7 @@ def project_current():
     print cp.name
 
 
-@group.command(name='path')
+@project.register('path')
 @arg('name', nargs='?', default=None)
 def project_path(name):
   """Return the PROJECT_PATH (optionally for a project_name or (sub)path)."""
@@ -66,7 +62,7 @@ def project_path(name):
     print cp.path
 
 
-@group.command(name='config-path')
+@project.register('config-path')
 @arg('name', nargs='?')
 def config_path(name):
   """Get the full path to the project config file given a project name."""
@@ -78,7 +74,7 @@ def config_path(name):
     print cp.config_path
 
 
-@group.command(name='config')
+@project.register('config')
 @arg('name', nargs='?')
 def project_config(name):
   """Print the project configuration as (key: value)."""
@@ -90,7 +86,7 @@ def project_config(name):
     print key + ':', value
 
 
-@group.command(name='conf')
+@project.register('conf')
 @arg('key', nargs='?')
 def conf(key):
   """Access config settings (mostly a debugging tool)."""
@@ -106,13 +102,13 @@ def conf(key):
       pass
 
 
-@group.command()
+@project.register('mkconfig')
 def mkconfig():
   """Make the UNB CLI config directory structure."""
-  project.make_config_dir()
+  make_config_dir()
 
 
-@group.command(name='venv-activate-path')
+@project.register('venv-activate-path')
 @arg('project_name', nargs='?', default=None)
 def project_venv_activate_path(project_name):
   """Return a path to the project's venv/bin/activate script."""
@@ -125,13 +121,13 @@ def project_venv_activate_path(project_name):
     print venv_activate_path
 
 
-@group.command()
+@project.register('licenses')
 def licenses():
   """List licenses of all 3rd party packages."""
   subprocess.call(['yolk', '-l', '-f', 'license'])
 
 
-@group.command()
+@project.register('bump')
 @arg('part', nargs='?', default='patch')
 def bump(part):
   """Bump the version number."""
@@ -145,7 +141,7 @@ def _tag(version, message):
   subprocess.call(['git', 'tag', '-a', v, '-m', message])
 
 
-@group.command()
+@project.register('tag')
 @arg('message', nargs='?', default='')
 def tag(message):
   """Create a git tag."""
@@ -156,7 +152,7 @@ def tag(message):
   _tag(v, message)
 
 
-@group.command(name='version')
+@project.register('version')
 def get_version():
   """Get the version number of the current project."""
   from unb_cli import version

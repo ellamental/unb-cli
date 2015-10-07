@@ -37,6 +37,7 @@ if __name__ == '__main__':
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
+      'clams',   # nested cli framework
       'flake8',  # linting
       'jinja2',  # templating (project creation)
     ],
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     ],
     entry_points='''
       [console_scripts]
-      unb-cli=unb_cli.unb:cli
+      unb-cli=unb_cli.unb:run
     ''',
     classifiers=[
       'Development Status :: 2 - Pre-Alpha',

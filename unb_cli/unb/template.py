@@ -1,15 +1,17 @@
 import os
 
-from lib.commands.commands import arg, Group
+from clams import arg, Command
 
 
-group = Group(
-  title='Create projects or directories from templates.',
-  description='Create projects or directories from templates.',
-)
+template = Command('template')
+
+# group = Group(
+#   title='Create projects or directories from templates.',
+#   description='Create projects or directories from templates.',
+# )
 
 
-@group.command(name='list')
+@template.register('list')
 def list_templates():
   """List available templates."""
   from unb_cli.templates import list_templates
@@ -17,7 +19,7 @@ def list_templates():
     print t
 
 
-@group.command(name='new')
+@template.register('new')
 @arg('name')
 def new_template(name):
   """Create a new project template in ~/.unb-cli.d/templates/name."""
@@ -28,7 +30,7 @@ def new_template(name):
     print 'Error creating template.'
 
 
-@group.command(name='cc')
+@template.register('cc')
 @arg('name')
 @arg('dest', nargs='?')
 def copy_config(name, dest):
@@ -39,7 +41,7 @@ def copy_config(name, dest):
   copy_config(name, dest)
 
 
-@group.command(name='build')
+@template.register('build')
 @arg('name')
 def build_template(name):
   """Build a template from a config file (in the current directory)."""

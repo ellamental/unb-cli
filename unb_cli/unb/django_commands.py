@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 import argparse
-from lib.commands.commands import arg, Group
+from clams import arg, Command
 
 import utilities
 
@@ -15,10 +15,12 @@ from . import current_project
 logger = logging.getLogger(__name__)
 
 
-group = Group(
-  title='Django commands and tasks.',
-  description='Django commands and tasks.',
-)
+dj = Command('dj')
+
+# group = Group(
+#   title='Django commands and tasks.',
+#   description='Django commands and tasks.',
+# )
 
 
 # Django Command Utilities
@@ -70,7 +72,7 @@ def _execute_django_command(name=None, *args):
 # Django Commands
 # ===============
 
-@group.command()
+@dj.register('m')
 @_django_command
 @arg('name', nargs='?',
      help="The name of the manage.py command you want to run.")
@@ -81,7 +83,7 @@ def m(name, args):
   _execute_django_command(name, *args)
 
 
-@group.command(name='run')
+@dj.register('run')
 @_django_command
 def runserver():
   """Run the development server and restart on crash."""
@@ -98,7 +100,7 @@ def runserver():
   sys.exit()
 
 
-@group.command()
+@dj.register('migrate')
 @_django_command
 def migrate():
   """Make migrations and run them."""
@@ -106,7 +108,7 @@ def migrate():
   _execute_django_command('migrate')
 
 
-@group.command(name='clear-cache')
+@dj.register('clear-cache')
 @_django_command
 def clear_cache():
   """Clear expired session data from the database-backed cache."""
@@ -117,7 +119,7 @@ def clear_cache():
 # ===============================
 
 # TODO(nick): Not really a Django command.  Move this somewhere else!
-@group.command()
+@dj.register('test')
 @_django_command
 def test():
   """Run tests and linters."""

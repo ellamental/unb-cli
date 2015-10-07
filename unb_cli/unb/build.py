@@ -2,18 +2,20 @@ import os
 import shutil
 import subprocess
 
-from lib.commands.commands import arg, Group
+from clams import arg, Command
 
 from . import current_project
 
 
-group = Group(
-  title='Build tools and scripts',
-  description='Build tools and scripts',
-)
+build = Command('build')
+
+# group = Group(
+#   title='Build tools and scripts',
+#   description='Build tools and scripts',
+# )
 
 
-@group.command(name='sphinx')
+@build.register('sphinx')
 @arg('component', nargs='?')
 def sphinx_docs(component=None):
   """Build Sphinx docs for a project."""
@@ -30,13 +32,15 @@ def sphinx_docs(component=None):
       # foolproof.  For example it could also catch permissions errors.
       pass
     print 'Building docs...'
+    # Run the doctests
+    subprocess.call(['make', 'doctest'])
     # Inovke the Sphinx makefile to build the html documentation.
     subprocess.call(['make', 'html'])
   finally:
     os.chdir(starting_directory)
 
 
-@group.command(name='sphinx-api')
+@build.register('sphinx-api')
 @arg('component', nargs='?')
 def sphinx_api_docs(component=None):
   """Build Sphinx docs for a project."""
@@ -59,13 +63,13 @@ def sphinx_api_docs(component=None):
   ])
 
 
-@group.command(name='egg')
+@build.register('egg')
 def py_egg():
   """Build a Python egg."""
   subprocess.call(['python', 'setup.py', 'sdist', 'bdist_wheel'])
 
 
-@group.command(name='package')
+@build.register('package')
 @arg('dist', help=("Package version (example: `0.0.3*`).  Use matching to "
                    "upload multiple versions (source dist and a wheel, for "
                    "example)."))
@@ -86,12 +90,12 @@ def package(dist, repo):
 
 
 # This might not work...
-@group.command(name='egg-install')
+@build.register('egg-install')
 def py_egg_install():
   """Install a Python egg locally (usually during development)."""
   subprocess.call(['pip', 'install', '-e', '.'])
 
 
-@group.command(name='verify-docs')
+@build.register('verify-docs')
 def verify_docs():
   subprocess.call(['rest2html.py', 'README.txt'])
