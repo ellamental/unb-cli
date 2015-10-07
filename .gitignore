@@ -13,6 +13,9 @@ venv
 # distributions
 dist
 
+# package build files
+build
+
 
 # SQLite DB File
 # ==============
