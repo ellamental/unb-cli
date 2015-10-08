@@ -12,12 +12,11 @@ import subprocess
 from clams import arg, Command
 
 
-heroku = Command('heroku')
-
-# group = Group(
-#   title='Heroku project/environment management tools',
-#   description='Heroku project/environment management tools',
-# )
+heroku = Command(
+  name='heroku',
+  title='Heroku project/environment management tools',
+  description='Heroku project/environment management tools',
+)
 
 
 @heroku.register('run')

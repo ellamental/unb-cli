@@ -7,12 +7,11 @@ from clams import arg, Command
 from . import current_project
 
 
-build = Command('build')
-
-# group = Group(
-#   title='Build tools and scripts',
-#   description='Build tools and scripts',
-# )
+build = Command(
+  name='build',
+  title='Build tools and scripts',
+  description='Build tools and scripts',
+)
 
 
 @build.register('sphinx')
@@ -43,7 +42,7 @@ def sphinx_docs(component=None):
 @build.register('sphinx-api')
 @arg('component', nargs='?')
 def sphinx_api_docs(component=None):
-  """Build Sphinx docs for a project."""
+  """Generate Sphinx rst files for a project's api."""
   cp = current_project()
   # sphinx-apidoc: Build .rst docs from docstrings for all project modules.
   docs_dir = os.path.join(cp.path, cp.config.DOCS_DIRNAME)

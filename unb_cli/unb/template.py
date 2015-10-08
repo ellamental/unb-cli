@@ -3,12 +3,11 @@ import os
 from clams import arg, Command
 
 
-template = Command('template')
-
-# group = Group(
-#   title='Create projects or directories from templates.',
-#   description='Create projects or directories from templates.',
-# )
+template = Command(
+  name='template',
+  title='Create projects or directories from templates.',
+  description='Create projects or directories from templates.',
+)
 
 
 @template.register('list')

@@ -63,15 +63,15 @@ def b(name, args):
 
 
 from . import build
-unb.add_command(build.build)
+unb.add_subcommand(build.build)
 
 
 from . import django_commands
-unb.add_command(django_commands.dj)
+unb.add_subcommand(django_commands.dj)
 
 
 from . import heroku
-unb.add_command(heroku.heroku)
+unb.add_subcommand(heroku.heroku)
 
 
 @unb.register('install-cli')
@@ -111,7 +111,7 @@ def lint():
 
 
 from . import pip
-unb.add_command(pip.pip)
+unb.add_subcommand(pip.pip)
 
 
 def prettify(src, dest):
@@ -129,7 +129,7 @@ def prettify(src, dest):
 
 
 from . import project
-unb.add_command(project.project)
+unb.add_subcommand(project.project)
 
 
 @unb.register('shell')
@@ -144,7 +144,7 @@ def shell():
 
 
 from . import template
-unb.add_command(template.template)
+unb.add_subcommand(template.template)
 
 
 @unb.register('update-remote')

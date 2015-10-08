@@ -6,12 +6,11 @@ from clams import arg, Command
 from unb_cli.project import is_project_root
 
 
-pip = Command('pip')
-
-# group = Group(
-#   title='pip interface and tools',
-#   description='pip interface and tools',
-# )
+pip = Command(
+  name='pip',
+  title='pip interface and tools',
+  description='pip interface and tools',
+)
 
 
 @pip.register('install')

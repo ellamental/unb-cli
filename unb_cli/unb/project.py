@@ -7,16 +7,15 @@ from unb_cli.project import Project, copy_default_config, make_config_dir
 from . import current_project
 
 
-project = Command('project')
+project = Command(
+  name='project',
+  title='Project management utilities',
+  description='''Project management utilities.
 
-# group = Group(
-#   title='Project management utilities',
-#   description='''Project management utilities.
-
-# Tools that help you work with your projects, store and access configuration and
-# consolidate your tooling across projects.
-# ''',
-# )
+Tools that help you work with your projects, store and access configuration and
+consolidate your tooling across projects.
+''',
+)
 
 
 @project.register('new')

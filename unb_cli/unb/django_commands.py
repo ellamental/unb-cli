@@ -1,12 +1,11 @@
+import argparse
 from functools import wraps
 import logging
 import os
 import subprocess
 import sys
 
-import argparse
 from clams import arg, Command
-
 import utilities
 
 from . import current_project
@@ -15,12 +14,11 @@ from . import current_project
 logger = logging.getLogger(__name__)
 
 
-dj = Command('dj')
-
-# group = Group(
-#   title='Django commands and tasks.',
-#   description='Django commands and tasks.',
-# )
+dj = Command(
+  name='dj',
+  title='Django commands and tasks.',
+  description='Django commands and tasks.',
+)
 
 
 # Django Command Utilities
