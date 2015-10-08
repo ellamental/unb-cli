@@ -23,8 +23,8 @@ def install(package, nocache, verbose):
 
   If `package` ends with `.txt` then `pip install -r package` is used.  If
   `package` is not supplied, it defaults to `requirements.txt`.
-  """
 
+  """
   if package.endswith('.txt'):
     command = ['pip', 'install', '-r', package]
     if not verbose:
@@ -34,8 +34,8 @@ def install(package, nocache, verbose):
     while True:
       path = os.getcwd()
       if os.path.exists(package):
+        print 'Installing packages from %s' % os.path.join(path, package)
         subprocess.call(command)
-        print 'Installed packages from %s' % os.path.join(path, package)
         break
       if is_project_root(path) or path == os.path.abspath(os.sep):
         print "%s not found in project." % package
