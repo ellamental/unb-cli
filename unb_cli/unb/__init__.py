@@ -22,9 +22,6 @@ def current_project():
   return Project.get_from_path(os.getcwd())
 
 
-# Converted to Clams
-# ==================
-
 @unb.register('b')
 @arg('name', nargs='?', default="",
      help="The name of the build.py command you want to run.")
