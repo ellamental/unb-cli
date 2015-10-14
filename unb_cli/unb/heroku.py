@@ -60,3 +60,15 @@ def deploy():
   """
   subprocess.call(['git', 'push', 'heroku', 'master'])
   subprocess.call(['heroku', 'run', './manage.py', 'migrate'])
+
+
+@unb.register('update-remote')
+@arg('app_name')
+def update_remote(app_name):
+  """Update the Heroku git remote given a Heroku app name.
+
+  Ensure the remote is set to use the ssh protocol, which also eliminates the
+  need to specify the app name for each Heroku toolbelt command.
+  """
+  subprocess.call(['git', 'remote', 'rm', 'heroku'])
+  subprocess.call(['heroku', 'git:remote', '-a', app_name, '--ssh-git'])

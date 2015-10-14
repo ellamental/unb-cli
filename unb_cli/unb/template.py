@@ -18,7 +18,7 @@ def list_templates():
     print t
 
 
-@template.register('new')
+@template.register('new-template')
 @arg('name')
 def new_template(name):
   """Create a new project template in ~/.unb-cli.d/templates/name."""
@@ -27,6 +27,22 @@ def new_template(name):
     new_template(name)
   except OSError:
     print 'Error creating template.'
+
+
+@template.register('new')
+@arg('template_name')
+@arg('dirname')
+def new_template(template_name, dirname):
+  from unb_cli.templates import copy_config
+  if not os.path.exists(dirname):
+    os.mkdir(dirname)
+  os.chdir(dirname)
+  copy_config(template_name, os.getcwd())
+  print 'Next steps: '
+  print
+  print 'cd ' + dirname
+  print 'emacs __config__.py'
+  print 'unb template build  # ut build'
 
 
 @template.register('cc')
@@ -41,10 +57,9 @@ def copy_config(name, dest):
 
 
 @template.register('build')
-@arg('name')
-def build_template(name):
+def build_template():
   """Build a template from a config file (in the current directory)."""
   from unb_cli.templates import build_template
-  build_template(name, os.getcwd())
+  build_template(os.getcwd())
 # TODO(nick): Add an option to create a new UNB project config at
 #   `~/.unb-cli.d/projects/name`.

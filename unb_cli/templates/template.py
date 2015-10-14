@@ -173,7 +173,7 @@ def _build_template(template_path, dest, config_path=None, overwrite=False):
         _write(rendered, dest_path, overwrite)
 
 
-def build_template(name, dest, config_path=None, overwrite=False):
+def build_template(dest, config_path=None, overwrite=False):
   """Build a template, given a config file in the current working directory.
 
   If either `before` or `after` functions are defined in the config file, they
@@ -189,10 +189,11 @@ def build_template(name, dest, config_path=None, overwrite=False):
   before, after = config.get('before'), config.get('after')
 
   if before and hasattr(before, '__call__'):
-    before()
+    before(config)
 
+  name = config.get('__template__')
   template_path = _template_path(name)
   _build_template(template_path, dest, config_path, overwrite)
 
   if after and hasattr(after, '__call__'):
-    after()
+    after(config)
