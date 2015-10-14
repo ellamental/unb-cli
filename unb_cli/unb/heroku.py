@@ -62,7 +62,7 @@ def deploy():
   subprocess.call(['heroku', 'run', './manage.py', 'migrate'])
 
 
-@unb.register('update-remote')
+@heroku.register('update-remote')
 @arg('app_name')
 def update_remote(app_name):
   """Update the Heroku git remote given a Heroku app name.
