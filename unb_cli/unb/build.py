@@ -62,39 +62,6 @@ def sphinx_api_docs(component=None):
   ])
 
 
-@build.register('egg')
-def py_egg():
-  """Build a Python egg."""
-  subprocess.call(['python', 'setup.py', 'sdist', 'bdist_wheel'])
-
-
-@build.register('package')
-@arg('dist', help=("Package version (example: `0.0.3*`).  Use matching to "
-                   "upload multiple versions (source dist and a wheel, for "
-                   "example)."))
-@arg('-r', help=("Repository to upload to.  Common ones include, `pypi` and "
-                 "`testpypi` (they are defined in your `~/.pypirc`)."))
-def package(dist, repo):
-  """Build and upload a Python package.
-
-  Requires [twine](https://pypi.python.org/pypi/twine).
-  """
-  subprocess.call(['python', 'setup.py', 'sdist', 'bdist_wheel'])
-  dist_version = 'dist/' + dist
-  twine_command = ['twine', 'upload', dist_version]
-  if repo:
-     twine_command.append('-r')
-     twine_command.append(repo)
-  subprocess.call(twine_command)
-
-
-# This might not work...
-@build.register('egg-install')
-def py_egg_install():
-  """Install a Python egg locally (usually during development)."""
-  subprocess.call(['pip', 'install', '-e', '.'])
-
-
 @build.register('verify-docs')
 def verify_docs():
   subprocess.call(['rest2html.py', 'README.txt'])

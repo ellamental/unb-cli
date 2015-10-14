@@ -45,9 +45,38 @@ def install(package, nocache, verbose):
     subprocess.call(['pip', 'install', package])
 
 
+@pip.register('install-local')
+def install_local():
+  """Install a Python egg locally (usually during development)."""
+  subprocess.call(['pip', 'install', '-e', '.'])
+
+
 @pip.register('uninstall')
 @arg('package')
 def uninstall(package):
   """Uninstall a package using pip."""
 
   subprocess.call(['pip', 'uninstall', package])
+
+
+@pip.register('build')
+def build():
+  """Build a Python egg."""
+  subprocess.call(['python', 'setup.py', 'sdist', 'bdist_wheel'])
+
+
+@pip.register('upload')
+@arg('dist', help=("Package version (example: `0.0.3`).  `*` will be appended "
+                   "to upload all versions (source dist and a wheel, for "
+                   "example)."))
+@arg('repo', help=("Repository to upload to.  Common ones include, `pypi` and "
+                   "`testpypi` (they are defined in your `~/.pypirc`)."))
+def upload(dist, repo):
+  """Upload a pre-built Python package.
+
+  Requires [twine](https://pypi.python.org/pypi/twine).
+  """
+  # TODO(nick): `cd $PROJECT_ROOT` first.
+  dist_version = 'dist/' + '*' + dist + '*'
+  twine_command = ['twine', 'upload', dist_version, '-r', repo]
+  subprocess.call(twine_command)

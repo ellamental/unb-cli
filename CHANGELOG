@@ -1,3 +1,11 @@
+0.0.9
+=====
+
+- Move Python package build/upload commands to `unb pip`.
+- Remove the build step from the upload command.  You must now explicitly build
+  before you can upload.
+
+
 0.0.8
 =====
 
