@@ -1,3 +1,15 @@
+0.0.10
+======
+
+- Add `unb node` command.
+- Add `unb node` watch to run `gulp`.
+- Add `unb node` build to run `gulp build`.
+- Add `unb node install` to run `npm install`
+- Add `unb node reset` to trash `node_modules` and reinstall.
+- Add `unb node link-lib` to symlink `node_modules/lib` to `js/lib`.
+- Add `unb node set-env` to print the command to set `NODE_ENV`.
+
+
 0.0.9
 =====
 

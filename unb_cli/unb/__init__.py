@@ -59,29 +59,16 @@ def b(name, args):
   method(*args)
 
 
-from . import build
-unb.add_subcommand(build.build)
-
-
 from . import django_commands
 unb.add_subcommand(django_commands.dj)
 
 
+from . import docs
+unb.add_subcommand(docs.command)
+
+
 from . import heroku
 unb.add_subcommand(heroku.heroku)
-
-
-@unb.register('install-cli')
-def install_cli():
-  """Print the command to pip install unb-cli from source."""
-  # TODO(nick): This is pretty fragile.  If the user names this project
-  #   anything else, this command breaks.
-  path = Project.get_from_name('unb-cli').path
-  if path:
-    subprocess.call(['pip', 'install', '-e', path])
-  else:
-    print 'cd unb-cli-directory'
-    print 'pip install -e .'
 
 
 @unb.register('lint')
@@ -105,6 +92,10 @@ def lint():
   path = current_project().path
   if path:
     subprocess.call(['flake8', path])
+
+
+from . import node
+unb.add_subcommand(node.command)
 
 
 from . import pip
@@ -131,7 +122,7 @@ unb.add_subcommand(project.project)
 
 @unb.register('shell')
 def shell():
-  """Run shell."""
+  """Run a Python shell."""
   cp = current_project()
   if utilities.is_django_project(cp.path):
     os.chdir(cp.path)
@@ -142,6 +133,10 @@ def shell():
 
 from . import template
 unb.add_subcommand(template.template)
+
+
+from . import version
+unb.add_subcommand(version.version)
 
 
 def run():
