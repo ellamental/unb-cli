@@ -87,3 +87,9 @@ def watch():
 def build():
   """Run gulp build."""
   subprocess.call(['gulp', 'build'])
+
+
+@command.register('lint')
+def lint():
+  """Run gulp lint."""
+  subprocess.call(['gulp', 'lint'])

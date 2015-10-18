@@ -8,6 +8,7 @@
 - Add `unb node reset` to trash `node_modules` and reinstall.
 - Add `unb node link-lib` to symlink `node_modules/lib` to `js/lib`.
 - Add `unb node set-env` to print the command to set `NODE_ENV`.
+- Add `unb node lint` to run linters.
 
 
 0.0.9
