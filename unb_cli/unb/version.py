@@ -13,18 +13,28 @@ version = Command(
 )
 
 
-@version.register('bump')
-@arg('part', nargs='?', default='patch')
-def bump(part):
-  """Bump the version number."""
-  from unb_cli import version
-  version.bump_file(current_project().version_file_path, part, '0.0.0')
+def _list_tags():
+  """List tags."""
+  subprocess.call(['git', 'tag', '-l', '-n'])
 
 
 def _tag(version, message):
   """Create a git tag."""
   v = 'v' + version
   subprocess.call(['git', 'tag', '-a', v, '-m', message])
+
+
+def _push_tags():
+  """Run `git push --follow-tags`."""
+  subprocess.call(['git', 'push', '--follow-tags'])
+
+
+@version.register('bump')
+@arg('part', nargs='?', default='patch')
+def bump(part):
+  """Bump the version number."""
+  from unb_cli import version
+  version.bump_file(current_project().version_file_path, part, '0.0.0')
 
 
 @version.register('tag')
@@ -36,6 +46,18 @@ def tag(message):
                                    current_project().config.VERSION_FILENAME)
   v = version.read(version_file_path)
   _tag(v, message)
+
+
+@version.register('push-tags')
+def push_tags():
+  """Push and follow tags.  (`git push --follow-tags`)"""
+  _push_tags()
+
+
+@version.register('list-tags')
+def list_tags():
+  """List git tags."""
+  _list_tags()
 
 
 @version.register('version')
