@@ -67,6 +67,10 @@ from . import docs
 unb.add_subcommand(docs.command)
 
 
+from . import gemfury
+unb.add_subcommand(gemfury.command)
+
+
 from . import heroku
 unb.add_subcommand(heroku.heroku)
 
