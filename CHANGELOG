@@ -1,7 +1,19 @@
+0.0.12 dev
+==========
+
+- Add `unb heroku` commands
+  - `unb heroku config`
+  - `unb heroku config:get`
+  - `unb heroku config:set`
+- Add `unb heroku manage` to run Django `manage.py` commands
+  `heroku run ./manage.py`
+- Change the behavior of `unb heroku run` to `heroku run`
+
+
 0.0.11
 ======
 
-- Adds git tag commands `unb version list-tags` and `unb version push-tags`.
+- Add git tag commands `unb version list-tags` and `unb version push-tags`.
 
 
 0.0.10

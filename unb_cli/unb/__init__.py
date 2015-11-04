@@ -72,7 +72,7 @@ unb.add_subcommand(gemfury.command)
 
 
 from . import heroku
-unb.add_subcommand(heroku.heroku)
+unb.add_subcommand(heroku.command)
 
 
 @unb.register('lint')
