@@ -105,7 +105,10 @@ def conf(key):
 
 @project.register('mkconfig')
 def mkconfig():
-  """Make the UNB CLI config directory structure."""
+  """Make the UNB CLI config directory structure.
+
+  This is generally only useful for new unb-cli installations.
+  """
   make_config_dir()
 
 
