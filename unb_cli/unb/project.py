@@ -25,7 +25,9 @@ def new(name):
   cp = Project.get(name)
   if cp:
     print 'Error: Project name already exists.  Path: ', cp.path
-  config_path = cp.build_config_path()
+    return
+  p = Project(name=name)
+  config_path = p.build_config_path()
   copy_default_config(config_path)
 
 
