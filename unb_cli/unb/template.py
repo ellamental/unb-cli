@@ -33,12 +33,22 @@ def new_template(name):
 @arg('template_name')
 @arg('dirname')
 def new_template(template_name, dirname):
+  """Copy the configuration file for `template_name` to dirname.
+
+  To see a list of available template names use `unb template list`.
+
+  If dirname does not exist, it will be created.
+
+  """
   from unb_cli.templates import copy_config
   if not os.path.exists(dirname):
     os.mkdir(dirname)
   os.chdir(dirname)
   copy_config(template_name, os.getcwd())
-  print 'Next steps: '
+  print
+  print '=========='
+  print 'Next steps'
+  print '=========='
   print
   print 'cd ' + dirname
   print 'emacs __config__.py'
