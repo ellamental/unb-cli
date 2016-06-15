@@ -1,6 +1,8 @@
 0.0.12 dev
 ==========
 
+- `unb version tag` allow the name to be specified explicitly.  Also allow a
+  prefix and/or suffix to be provided.
 - Add `unb heroku` commands
   - `unb heroku config`
   - `unb heroku config:get`
