@@ -3,7 +3,8 @@ UNB Command Line Interface (unb-cli)
 ####################################
 
 
-.. WARNING::  This package is not intended for public use.
+.. WARNING::  This package is in the process of being converted for public
+              use.  There will be some rough edges.
 
 `unb-cli` is a suite of tools created to standardize common project management
 tasks for **UNB packages and applications**.
@@ -19,17 +20,24 @@ Installation
 
 Install from the shell with:
 
-.. code-block:: console
+.. code-block:: shell
 
-   $ pip install unb-cli --extra-index-url https://gemfury.com/nickzarr
+   pip install unb-cli --extra-index-url https://gemfury.com/nickfrez
 
 
 Or add the following to your ``requirements.txt``:
 
 .. code-block:: text
 
-   --extra-index-url https://gemfury.com/nickzarr
-   unb-cli==0.0.0
+   --extra-index-url https://gemfury.com/nickfrez
+   unb-cli==0.0.12
+
+
+Or for dev install, clone the repo and use:
+
+.. code-block:: shell
+
+    pip install -e /path/to/unb-cli/
 
 
 Depending on your configuration and how you install `unb-cli` you may need to
@@ -72,9 +80,9 @@ aspect of ``unb-cli`` is sorely under-documented.
 Projects
 ~~~~~~~~
 
-Many UNB CLI operate on/in a project.  A "project" is generally defined as a
-git repo.  The "current project" is the repository stored at the first parent
-directory of ``$PWD``.
+Many UNB CLI commands operate on/in a project.  A "project" is generally
+defined as a git repo.  The "current project" is the repository stored at the
+first parent directory of ``$PWD`` that contains a ``.git`` directory.
 
 Projects may be configured by a project configuration Python script located at
 ``~/.unb-cli.d/projects/project-name.py``.
