@@ -22,7 +22,7 @@ Install from the shell with:
 
 .. code-block:: shell
 
-   pip install unb-cli --extra-index-url https://gemfury.com/nickfrez
+   pip install --user unb-cli --extra-index-url https://pypi.fury.io/nickfrez/
 
 
 Or add the following to your ``requirements.txt``:
